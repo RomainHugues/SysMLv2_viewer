@@ -113,6 +113,11 @@
           ],
           "default": "default",
           "description": "Mermaid rendering theme."
+        },
+        "sysmlMermaid.autoRefreshOnSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically refresh open diagrams when their .sysml file is saved."
         }
       }
     }

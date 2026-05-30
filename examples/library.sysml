@@ -24,5 +24,11 @@ package LibrarySystem {
         ref borrower : Member;
     }
 
+    item def CoffeMachine {
+        attribute flavors : Integer;
+        ref lib : Library;
+        ref member : Member;
+    }
+
     part def ReferenceBook :> Book;
 }

@@ -24,6 +24,17 @@ export function findEnclosingPackage(document: any, offset: number): SysmlNode |
   return undefined;
 }
 
+/** Find a package by its qualified name (used to re-locate it after a re-parse). */
+export function findPackageByQualifiedName(document: any, qualifiedName: string): SysmlNode | undefined {
+  return allPackages(document).find((p) => {
+    try {
+      return p.$meta?.qualifiedName === qualifiedName;
+    } catch {
+      return false;
+    }
+  });
+}
+
 /** All packages in document order (fallback when the cursor is not in a package). */
 export function allPackages(document: any): SysmlNode[] {
   const root: SysmlNode | undefined = document?.parseResult?.value;

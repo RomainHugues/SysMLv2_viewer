@@ -77,6 +77,9 @@ command opens its own panel, so you can show several diagrams side by side.
 
 - `sysmlMermaid.flowchart.direction` — `TB` | `LR` | `BT` | `RL`
 - `sysmlMermaid.theme` — Mermaid theme (`default`, `dark`, `forest`, `neutral`)
+- `sysmlMermaid.autoRefreshOnSave` — redraw open diagrams when their `.sysml`
+  file is saved (default: `true`). Each panel also has a **⟳ Refresh** button
+  for an on-demand update.
 
 ## License
 
