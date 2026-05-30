@@ -7,7 +7,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/romain-hugues/sysmlv2-mermaid-viewer"
+    "url": "https://github.com/RomainHugues/SysMLv2_viewer.git"
+  },
+  "homepage": "https://github.com/RomainHugues/SysMLv2_viewer#readme",
+  "bugs": {
+    "url": "https://github.com/RomainHugues/SysMLv2_viewer/issues"
   },
   "engines": {
     "vscode": "^1.85.0"
