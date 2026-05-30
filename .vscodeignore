@@ -1,0 +1,17 @@
+.vscode/**
+.claude/**
+src/**
+scripts/**
+examples/**
+node_modules/**
+vendor/**
+dist/_*
+**/*.ts
+**/*.map
+esbuild.mjs
+tsconfig.json
+.gitignore
+.gitattributes
+vitest.config.*
+CLAUDE.md
+*.vsix

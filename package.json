@@ -1,0 +1,106 @@
+{
+  "name": "sysmlv2-mermaid-viewer",
+  "displayName": "SysML v2 Mermaid Viewer",
+  "description": "Render the contents of a SysML v2 package as a Mermaid diagram (flowchart, class, state, sequence).",
+  "version": "0.0.1",
+  "publisher": "romain-hugues",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Visualization",
+    "Other"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [],
+  "contributes": {
+    "languages": [
+      {
+        "id": "sysml",
+        "extensions": [
+          ".sysml"
+        ],
+        "aliases": [
+          "SysML"
+        ]
+      }
+    ],
+    "commands": [
+      {
+        "command": "sysmlMermaid.showFlowchart",
+        "title": "Show Flowchart Diagram",
+        "category": "SysML Mermaid"
+      }
+    ],
+    "submenus": [
+      {
+        "id": "sysmlMermaid.diagramMenu",
+        "label": "SysML Diagram"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "submenu": "sysmlMermaid.diagramMenu",
+          "group": "navigation@9",
+          "when": "resourceLangId == sysml"
+        }
+      ],
+      "sysmlMermaid.diagramMenu": [
+        {
+          "command": "sysmlMermaid.showFlowchart",
+          "when": "resourceLangId == sysml"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "SysML Mermaid Viewer",
+      "properties": {
+        "sysmlMermaid.flowchart.direction": {
+          "type": "string",
+          "enum": [
+            "TB",
+            "LR",
+            "BT",
+            "RL"
+          ],
+          "default": "TB",
+          "description": "Flowchart layout direction (top-bottom, left-right, ...)."
+        },
+        "sysmlMermaid.theme": {
+          "type": "string",
+          "enum": [
+            "default",
+            "dark",
+            "forest",
+            "neutral"
+          ],
+          "default": "default",
+          "description": "Mermaid rendering theme."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "node esbuild.mjs",
+    "build": "node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "typecheck": "tsc --noEmit",
+    "check-parser": "node scripts/check-parser-bundle.mjs examples/coffee.sysml",
+    "test": "vitest run",
+    "package": "vsce package"
+  },
+  "dependencies": {
+    "mermaid": "^11.15.0",
+    "vscode-uri": "^3.0.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.9.1",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}
