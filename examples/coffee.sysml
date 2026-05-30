@@ -1,5 +1,7 @@
 package CoffeeMachine {
 
+    private import ScalarValues::*;
+
     action def BrewCoffee {
         attribute waterOk : Boolean;
 

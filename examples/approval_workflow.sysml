@@ -1,6 +1,8 @@
 // Flowchart example: decision with guards and a merge node.
 package ApprovalWorkflow {
 
+    private import ScalarValues::*;
+
     action def ReviewRequest {
         attribute approved : Boolean;
 

@@ -1,6 +1,8 @@
 // State example: transitions with a guard.
 package DoorLock {
 
+    private import ScalarValues::*;
+
     state def Door {
         attribute hasKey : Boolean;
 

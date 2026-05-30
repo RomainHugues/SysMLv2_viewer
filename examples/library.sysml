@@ -1,6 +1,8 @@
 // Class example: composition, references (associations) and inheritance.
 package LibrarySystem {
 
+    private import ScalarValues::*;
+
     part def Library {
         part catalog : Book[*];
         part members : Member[*];

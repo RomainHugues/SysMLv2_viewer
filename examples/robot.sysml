@@ -1,6 +1,8 @@
 // Class example: ports and a small part hierarchy.
 package RobotSystem {
 
+    private import ScalarValues::*;
+
     port def PowerPort;
 
     part def Battery {
