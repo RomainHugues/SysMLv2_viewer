@@ -1,5 +1,7 @@
 import type { SysmlNode } from "../../sysml/parser";
 import type { ClassModel, ClassNode, ClassRelation, ClassMember } from "./ir";
+import { styleInfo } from "../ast";
+import { matchStyle, type StyleSheet } from "../../style/style";
 
 // Definition $type -> stereotype (undefined = plain part/class box).
 const DEF_KINDS: Record<string, string | null> = {
@@ -109,7 +111,7 @@ function supertypes(def: SysmlNode): Array<{ qn?: string; name?: string }> {
   }
 }
 
-export function extractClass(pkg: SysmlNode): ClassModel {
+export function extractClass(pkg: SysmlNode, styleSheet?: StyleSheet): ClassModel {
   const defs = topLevelDefs(pkg);
   const classes: ClassNode[] = [];
   const byId = new Map<string, ClassNode>();
@@ -137,6 +139,7 @@ export function extractClass(pkg: SysmlNode): ClassModel {
       stereotype: DEF_KINDS[def.$type] ?? undefined,
       members: [],
       literals: [],
+      style: matchStyle(styleSheet, styleInfo(def)),
     };
     classes.push(node);
     byId.set(id, node);

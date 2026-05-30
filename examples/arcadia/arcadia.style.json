@@ -1,0 +1,29 @@
+{
+  "name": "Arcadia",
+  "rules": [
+    {
+      "type": "OperationalEntity",
+      "style": { "fill": "#f8cbad", "stroke": "#c55a11", "color": "#000000" }
+    },
+    {
+      "type": "OperationalActivity",
+      "style": { "fill": "#c6e0b4", "stroke": "#548235", "color": "#000000" }
+    },
+    {
+      "type": "LogicalComponent",
+      "style": { "fill": "#bdd7ee", "stroke": "#2e75b6", "color": "#000000" }
+    },
+    {
+      "type": ["LogicalFunction", "SystemFunction", "PhysicalFunction"],
+      "style": { "fill": "#c6e0b4", "stroke": "#548235", "color": "#000000" }
+    },
+    {
+      "type": "PhysicalNode",
+      "style": { "fill": "#ffe699", "stroke": "#bf9000", "color": "#000000" }
+    },
+    {
+      "type": ["SystemComponent", "PhysicalComponent"],
+      "style": { "fill": "#dbdbdb", "stroke": "#7f7f7f", "color": "#000000" }
+    }
+  ]
+}

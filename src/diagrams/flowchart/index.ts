@@ -7,7 +7,7 @@ export const flowchartDiagram: DiagramType = {
   commandId: "sysmlMermaid.showFlowchart",
   label: "Flowchart",
   build(pkg, config) {
-    const model = extractFlow(pkg);
+    const model = extractFlow(pkg, config.styleSheet);
     if (model.groups.length === 0) return null;
     return flowToMermaid(model, { direction: config.direction });
   },

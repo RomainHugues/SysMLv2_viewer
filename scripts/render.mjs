@@ -13,6 +13,7 @@ const { parserAlias } = await import(pathToFileURL(path.join(repo, "esbuild.mjs"
 
 const type = process.argv[2] || "flowchart";
 const file = process.argv[3] || path.join(repo, "examples/coffee.sysml");
+const styleArg = process.argv[4]; // optional path to a style JSON
 const S = (p) => JSON.stringify(path.join(repo, p));
 
 const harness = `
@@ -20,6 +21,7 @@ import fs from "fs";
 import { parseText } from ${S("src/sysml/parser.ts")};
 import { allPackages } from ${S("src/sysml/packageAtCursor.ts")};
 import { diagramTypes } from ${S("src/diagrams/registry.ts")};
+import { parseStyleSheet } from ${S("src/style/style.ts")};
 (async () => {
   const text = fs.readFileSync(${JSON.stringify(path.resolve(file))}, "utf8");
   const { document } = await parseText(${JSON.stringify(path.resolve(file))}, text);
@@ -27,7 +29,9 @@ import { diagramTypes } from ${S("src/diagrams/registry.ts")};
   console.log("PACKAGES:", pkgs.map((p) => p.declaredName).join(", "));
   const dt = diagramTypes.find((d) => d.id === ${JSON.stringify(type)});
   if (!dt) { console.error("unknown type"); process.exit(1); }
-  const out = dt.build(pkgs[0], { direction: "TB", theme: "default" });
+  const styleArg = ${JSON.stringify(styleArg ? path.resolve(styleArg) : null)};
+  const styleSheet = styleArg ? parseStyleSheet(JSON.parse(fs.readFileSync(styleArg, "utf8"))) : undefined;
+  const out = dt.build(pkgs[0], { direction: "TB", theme: "default", styleSheet });
   console.log("\\n----- " + dt.label.toUpperCase() + " MERMAID -----");
   console.log(out == null ? "(null — no relevant elements)" : out);
 })().catch((e) => { console.error(e); process.exit(1); });

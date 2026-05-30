@@ -1,8 +1,11 @@
 // Intermediate representation for state diagrams.
 
+import type { StyleProps } from "../../style/style";
+
 export interface StateNode {
   id: string;
   name: string;
+  style?: StyleProps;
 }
 
 export interface StateTransition {

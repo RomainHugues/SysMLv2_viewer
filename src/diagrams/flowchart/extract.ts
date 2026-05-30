@@ -1,5 +1,7 @@
 import type { SysmlNode } from "../../sysml/parser";
 import type { FlowModel, FlowGroup, FlowNode, FlowEdge, FlowNodeKind } from "../ir";
+import { styleInfo } from "../ast";
+import { matchStyle, type StyleSheet } from "../../style/style";
 
 // SysML element $type -> flow node kind. Elements not listed are "noise" and are
 // excluded from flowcharts (attributes, parts, doc, references, ...).
@@ -106,7 +108,7 @@ function endpointsFromText(succession: SysmlNode): [string?, string?] {
   return [undefined, undefined];
 }
 
-export function extractFlow(pkg: SysmlNode): FlowModel {
+export function extractFlow(pkg: SysmlNode, styleSheet?: StyleSheet): FlowModel {
   const groups: FlowGroup[] = [];
 
   for (const behaviour of topLevelBehaviours(pkg)) {
@@ -114,10 +116,11 @@ export function extractFlow(pkg: SysmlNode): FlowModel {
     const byId = new Map<string, FlowNode>();
     const byName = new Map<string, FlowNode>();
 
-    const addNode = (id: string, label: string, kind: FlowNodeKind): FlowNode => {
+    const addNode = (id: string, label: string, kind: FlowNodeKind, el?: SysmlNode): FlowNode => {
       let node = byId.get(id);
       if (!node) {
         node = { id, label, kind };
+        if (el) node.style = matchStyle(styleSheet, styleInfo(el));
         nodes.push(node);
         byId.set(id, node);
         byName.set(label, node);
@@ -130,7 +133,7 @@ export function extractFlow(pkg: SysmlNode): FlowModel {
       const kind = NODE_KINDS[el.$type];
       if (!kind) continue;
       const name = nameOf(el);
-      addNode(qnOf(el) ?? name, name, kind);
+      addNode(qnOf(el) ?? name, name, kind, el);
     }
 
     // 2) collect edges from successions (plain + guarded transitions)

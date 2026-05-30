@@ -1,4 +1,5 @@
 import type { StateModel, StateMachine } from "./ir";
+import { buildClassDefs, type StyleProps } from "../../style/style";
 
 export interface StateOptions {
   direction: "TB" | "LR" | "BT" | "RL";
@@ -9,7 +10,11 @@ function sanitize(name: string): string {
   return /^[A-Za-z_]/.test(s) ? s : "s_" + s;
 }
 
-function machineLines(machine: StateMachine, indent: string): string[] {
+function machineLines(
+  machine: StateMachine,
+  indent: string,
+  classNameFor: (s: StyleProps | undefined) => string | undefined
+): string[] {
   const lines: string[] = [];
   const safe = new Map<string, string>();
   const used = new Set<string>();
@@ -42,6 +47,11 @@ function machineLines(machine: StateMachine, indent: string): string[] {
     if (!touched.has(st.name) && sanitize(st.name) === st.name) lines.push(`${indent}${idOf(st.name)}`);
   }
   lines.push(...rendered);
+  // per-state style class assignments
+  for (const st of machine.states) {
+    const cls = classNameFor(st.style);
+    if (cls) lines.push(`${indent}class ${idOf(st.name)} ${cls}`);
+  }
   return lines;
 }
 
@@ -49,13 +59,16 @@ function machineLines(machine: StateMachine, indent: string): string[] {
 export function stateToMermaid(model: StateModel, opts: StateOptions): string {
   const dir = opts.direction === "LR" || opts.direction === "RL" ? "LR" : "TB";
   const lines: string[] = ["stateDiagram-v2", `  direction ${dir}`];
+  const { classNameFor, classDefLines } = buildClassDefs();
 
   for (const machine of model.machines) {
     const id = sanitize(machine.name);
     lines.push(`  state ${id} {`);
-    lines.push(...machineLines(machine, "    "));
+    lines.push(...machineLines(machine, "    ", classNameFor));
     lines.push(`  }`);
   }
+
+  for (const def of classDefLines()) lines.push(`  ${def}`);
 
   return lines.join("\n");
 }

@@ -5,6 +5,8 @@ export interface ClassMember {
   type?: string;
 }
 
+import type { StyleProps } from "../../style/style";
+
 export interface ClassNode {
   id: string; // SysML qualified name (or short name for externals)
   name: string;
@@ -12,6 +14,7 @@ export interface ClassNode {
   members: ClassMember[];
   literals: string[]; // enumeration values
   external?: boolean; // referenced but defined outside the package
+  style?: StyleProps;
 }
 
 export type RelationKind = "inheritance" | "composition" | "association";

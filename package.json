@@ -118,6 +118,11 @@
           "type": "boolean",
           "default": true,
           "description": "Automatically refresh open diagrams when their .sysml file is saved."
+        },
+        "sysmlMermaid.styleFile": {
+          "type": "string",
+          "default": null,
+          "markdownDescription": "Path to a JSON style file that colors diagram elements by native SysML type and/or the SysML type they conform to. Absolute, or relative to the workspace folder or the .sysml file. See `examples/arcadia/arcadia.style.json`."
         }
       }
     }

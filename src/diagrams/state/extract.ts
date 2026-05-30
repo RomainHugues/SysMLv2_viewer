@@ -1,14 +1,15 @@
 import type { SysmlNode } from "../../sysml/parser";
 import type { StateModel, StateMachine, StateNode, StateTransition } from "./ir";
 import {
-  childNodes,
   qnOf,
   nameOf,
   ownedElements,
   scopedDescendants,
   successionEndpoints,
   transitionLabel,
+  styleInfo,
 } from "../ast";
+import { matchStyle, type StyleSheet } from "../../style/style";
 
 const STATE_CONTAINERS = new Set(["StateDefinition", "StateUsage"]);
 const isStateContainer = (t: string) => STATE_CONTAINERS.has(t);
@@ -18,23 +19,26 @@ function topLevelMachines(pkg: SysmlNode): SysmlNode[] {
   return ownedElements(pkg, isStateContainer);
 }
 
-export function extractState(pkg: SysmlNode): StateModel {
+export function extractState(pkg: SysmlNode, styleSheet?: StyleSheet): StateModel {
   const machines: StateMachine[] = [];
 
   for (const container of topLevelMachines(pkg)) {
     const states: StateNode[] = [];
     const byName = new Map<string, StateNode>();
-    const addState = (name: string) => {
-      if (!byName.has(name)) {
-        const s = { id: name, name };
+    const addState = (name: string, node?: SysmlNode) => {
+      let s = byName.get(name);
+      if (!s) {
+        s = { id: name, name };
         states.push(s);
         byName.set(name, s);
       }
+      if (node && !s.style) s.style = matchStyle(styleSheet, styleInfo(node));
+      return s;
     };
 
     // nested state usages are the states (don't descend into them)
     for (const st of scopedDescendants(container, STATE_CONTAINERS)) {
-      if (isStateContainer(st.$type)) addState(nameOf(st));
+      if (isStateContainer(st.$type)) addState(nameOf(st), st);
     }
 
     const transitions: StateTransition[] = [];

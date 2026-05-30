@@ -15,3 +15,5 @@ tsconfig.json
 vitest.config.*
 CLAUDE.md
 *.vsix
+doc/**
+TODO

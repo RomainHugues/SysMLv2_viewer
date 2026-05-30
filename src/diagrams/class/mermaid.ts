@@ -1,4 +1,5 @@
 import type { ClassModel, ClassNode } from "./ir";
+import { styleToClassDef } from "../../style/style";
 
 function sanitize(name: string): string {
   const s = name.replace(/[^A-Za-z0-9_]/g, "_");
@@ -28,6 +29,8 @@ export function classToMermaid(model: ClassModel): string {
 
   const idFor = (logicalId: string) => safe.get(logicalId) ?? sanitize(logicalId);
 
+  const styleStmts: string[] = [];
+
   for (const c of model.classes) {
     const sid = idFor(c.id);
     const body: string[] = [];
@@ -41,6 +44,12 @@ export function classToMermaid(model: ClassModel): string {
       lines.push(`  }`);
     } else {
       lines.push(`  class ${sid}`);
+    }
+    // Direct `style` statements color the class box fill reliably in Mermaid 11
+    // (classDef/::: often only affects the label there).
+    if (c.style) {
+      const body = styleToClassDef(c.style);
+      if (body) styleStmts.push(`  style ${sid} ${body}`);
     }
   }
 
@@ -58,6 +67,8 @@ export function classToMermaid(model: ClassModel): string {
       lines.push(`  ${a} ${arrow} ${mult}${b}${label}`);
     }
   }
+
+  lines.push(...styleStmts);
 
   return lines.join("\n");
 }

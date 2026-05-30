@@ -1,3 +1,5 @@
+import * as fs from "fs";
+import * as path from "path";
 import { URI } from "vscode-uri";
 import { createSysMLServices } from "syside-languageserver";
 import { SysMLNodeFileSystem } from "syside-languageserver/node";
@@ -23,10 +25,38 @@ function sysmlServices(): any {
   return servicesSingleton;
 }
 
+/** Find sibling `.sysml`/`.kerml` files (same directory tree) for import resolution. */
+function siblingSysmlFiles(currentPath: string, maxFiles = 200): string[] {
+  const dir = path.dirname(currentPath);
+  const out: string[] = [];
+  const walk = (d: string) => {
+    let entries: fs.Dirent[];
+    try {
+      entries = fs.readdirSync(d, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const e of entries) {
+      if (out.length >= maxFiles) return;
+      const full = path.join(d, e.name);
+      if (e.isDirectory()) {
+        if (e.name === "node_modules" || e.name.startsWith(".")) continue;
+        walk(full);
+      } else if (/\.(sysml|kerml)$/i.test(e.name) && path.resolve(full) !== path.resolve(currentPath)) {
+        out.push(full);
+      }
+    }
+  };
+  walk(dir);
+  return out;
+}
+
 /**
  * Parse SysML v2 source text into an AST. Uses the in-memory `text` (so unsaved
- * editor edits are respected) keyed by `uriPath`. Validation and the standard
- * library are disabled: we only need the syntactic/containment AST for diagrams.
+ * editor edits are respected) keyed by `uriPath`. Sibling `.sysml`/`.kerml` files
+ * are also loaded from disk so imports of reusable profile libraries resolve.
+ * Validation and the standard library are disabled: we only need the
+ * syntactic/containment AST for diagrams.
  */
 export async function parseText(uriPath: string, text: string): Promise<ParsedDocument> {
   const services = sysmlServices();
@@ -45,7 +75,24 @@ export async function parseText(uriPath: string, text: string): Promise<ParsedDo
   try {
     const document = services.shared.workspace.LangiumDocumentFactory.fromString(text, uri);
     docs.addDocument(document);
-    await services.shared.workspace.DocumentBuilder.build([document], {
+
+    // Load sibling files (from disk) so profile-library imports can resolve.
+    // The current file always uses the live editor text above.
+    const toBuild = [document];
+    for (const sib of siblingSysmlFiles(uriPath)) {
+      const sibUri = URI.file(sib);
+      if (docs.hasDocument(sibUri)) docs.deleteDocument(sibUri);
+      try {
+        const content = fs.readFileSync(sib, "utf8");
+        const sibDoc = services.shared.workspace.LangiumDocumentFactory.fromString(content, sibUri);
+        docs.addDocument(sibDoc);
+        toBuild.push(sibDoc);
+      } catch {
+        /* ignore unreadable siblings */
+      }
+    }
+
+    await services.shared.workspace.DocumentBuilder.build(toBuild, {
       validationChecks: "none",
       standardLibrary: "none",
     });

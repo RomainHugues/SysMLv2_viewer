@@ -83,6 +83,36 @@ Each panel has a toolbar: **⟳ Refresh** redraws from the current source, and
 - `sysmlMermaid.autoRefreshOnSave` — redraw open diagrams when their `.sysml`
   file is saved (default: `true`). Each panel also has a **⟳ Refresh** button
   for an on-demand update.
+- `sysmlMermaid.styleFile` — path to a JSON style file (see below).
+
+## Styling elements by SysML type
+
+You can colour diagram elements by their **native SysML type** (`PartUsage`,
+`ActionDefinition`, …) and/or by the **SysML type they conform to** (typing or
+specialization, followed through the hierarchy). Point `sysmlMermaid.styleFile`
+at a JSON file:
+
+```json
+{
+  "name": "Arcadia",
+  "rules": [
+    { "type": "LogicalComponent", "style": { "fill": "#bdd7ee", "stroke": "#2e75b6" } },
+    { "type": "PhysicalNode",      "style": { "fill": "#ffe699", "stroke": "#bf9000" } },
+    { "nativeType": "ActionUsage", "style": { "fill": "#c6e0b4", "stroke": "#548235" } }
+  ]
+}
+```
+
+- Each rule selects by `nativeType` and/or `type` (string or array). When both
+  are given they must both match. Rules are tried in order; the first match wins.
+- `type` matches the whole type hierarchy, so `part def Radio :> LogicalComponent`
+  is coloured as a `LogicalComponent`, and so is `part comms : Radio`.
+- Styling applies to flowchart, class and state diagrams (via Mermaid `classDef`);
+  sequence participants are coloured via Mermaid `box`.
+
+A ready-made **Arcadia** profile lives in [examples/arcadia/](examples/arcadia/):
+a reusable stereotype library (`ArcadiaProfile.sysml`), the colour code
+(`arcadia.style.json`), and a sample model (`drone_system.sysml`).
 
 ## License
 

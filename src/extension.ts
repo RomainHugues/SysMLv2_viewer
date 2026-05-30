@@ -3,6 +3,7 @@ import { parseText } from "./sysml/parser";
 import { findEnclosingPackage, allPackages, findPackageByQualifiedName } from "./sysml/packageAtCursor";
 import { diagramTypes, type DiagramType, type DiagramConfig } from "./diagrams/registry";
 import { showDiagramPanel, type RefreshResult } from "./webview/panel";
+import { loadStyleSheet } from "./style/load";
 
 /** Open diagram panels that can be auto-refreshed when their source file is saved. */
 interface OpenDiagram {
@@ -32,11 +33,12 @@ export function activate(context: vscode.ExtensionContext): void {
   );
 }
 
-function readConfig(): DiagramConfig {
+function readConfig(sourceUri: vscode.Uri): DiagramConfig {
   const cfg = vscode.workspace.getConfiguration("sysmlMermaid");
   return {
     direction: cfg.get<DiagramConfig["direction"]>("flowchart.direction", "TB"),
     theme: cfg.get<string>("theme", "default"),
+    styleSheet: loadStyleSheet(sourceUri),
   };
 }
 
@@ -60,7 +62,7 @@ async function showDiagram(dt: DiagramType, context: vscode.ExtensionContext): P
     const pkgName: string = pkg.declaredName ?? "package";
     const pkgQName: string | undefined = pkg.$meta?.qualifiedName;
 
-    const config = readConfig();
+    const config = readConfig(sourceUri);
     const mermaid = dt.build(pkg, config);
     if (!mermaid) {
       vscode.window.showInformationMessage(
@@ -77,7 +79,7 @@ async function showDiagram(dt: DiagramType, context: vscode.ExtensionContext): P
       const target =
         (pkgQName && findPackageByQualifiedName(reparsed, pkgQName)) ?? allPackages(reparsed)[0];
       if (!target) return { error: `Package '${pkgName}' was not found in the file.` };
-      const cfg = readConfig();
+      const cfg = readConfig(sourceUri);
       const out = dt.build(target, cfg);
       if (!out) return { error: `No ${dt.label} elements in package '${pkgName}' anymore.` };
       return { mermaid: out, theme: cfg.theme, parseErrors: parserErrorCount(reparsed) };

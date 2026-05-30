@@ -44,6 +44,42 @@ export function cstText(node: SysmlNode): string {
 }
 
 /**
+ * Style classification for an element: its native SysML type ($type, e.g.
+ * "PartUsage") and the qualified names of every type it conforms to, following
+ * the typing/specialization hierarchy (e.g. ["MyPkg::Radio", "Arcadia::LogicalComponent"]).
+ * Short names are appended so style rules can match on simple names too.
+ */
+export interface ElementStyleInfo {
+  nativeType: string;
+  typeChain: string[];
+}
+
+export function styleInfo(node: SysmlNode): ElementStyleInfo {
+  const chain = new Set<string>();
+  const add = (qn?: string) => {
+    if (!qn) return;
+    chain.add(qn);
+    const short = qn.split("::").pop();
+    if (short) chain.add(short);
+  };
+  try {
+    for (const t of node.$meta?.allTypes?.() ?? []) add(t.qualifiedName);
+  } catch {
+    /* ignore */
+  }
+  // definitions: include their own supertypes
+  try {
+    for (const s of node.$meta?.specializations?.() ?? []) {
+      const el = s.element ? s.element() : undefined;
+      add(el?.qualifiedName);
+    }
+  } catch {
+    /* ignore */
+  }
+  return { nativeType: node.$type, typeChain: [...chain] };
+}
+
+/**
  * Descendants within a container's scope: recurses through membership wrappers
  * and transitions, but does not descend into nested containers of `stopTypes`
  * (so a nested behaviour/state is yielded as a leaf). Cycle-safe.

@@ -6,8 +6,8 @@ export const sequenceDiagram: DiagramType = {
   id: "sequence",
   commandId: "sysmlMermaid.showSequence",
   label: "Sequence",
-  build(pkg) {
-    const model = extractSequence(pkg);
+  build(pkg, config) {
+    const model = extractSequence(pkg, config.styleSheet);
     if (model.messages.length === 0) return null;
     return sequenceToMermaid(model);
   },

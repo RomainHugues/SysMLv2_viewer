@@ -23,9 +23,18 @@ export function sequenceToMermaid(model: SequenceModel): string {
     return cand;
   };
 
+  // Mermaid can only color participants via `box <color> … end` groups, so each
+  // styled participant gets its own one-participant colored box.
   for (const p of model.participants) {
     const id = idOf(p.name);
-    lines.push(id === p.name ? `  participant ${id}` : `  participant ${id} as ${p.name}`);
+    const decl = id === p.name ? `participant ${id}` : `participant ${id} as ${p.name}`;
+    if (p.style?.fill) {
+      lines.push(`  box ${p.style.fill} ${p.name}`);
+      lines.push(`    ${decl}`);
+      lines.push(`  end`);
+    } else {
+      lines.push(`  ${decl}`);
+    }
   }
 
   for (const m of model.messages) {

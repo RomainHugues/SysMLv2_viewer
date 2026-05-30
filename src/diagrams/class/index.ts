@@ -6,8 +6,8 @@ export const classDiagram: DiagramType = {
   id: "class",
   commandId: "sysmlMermaid.showClass",
   label: "Class",
-  build(pkg) {
-    const model = extractClass(pkg);
+  build(pkg, config) {
+    const model = extractClass(pkg, config.styleSheet);
     if (model.classes.length === 0) return null;
     return classToMermaid(model);
   },

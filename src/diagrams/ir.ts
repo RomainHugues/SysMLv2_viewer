@@ -13,11 +13,14 @@ export type FlowNodeKind =
   | "start"
   | "end";
 
+import type { StyleProps } from "../style/style";
+
 export interface FlowNode {
   /** Stable logical id (SysML qualified name when available, else the ref name). */
   id: string;
   label: string;
   kind: FlowNodeKind;
+  style?: StyleProps;
 }
 
 export interface FlowEdge {

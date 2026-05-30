@@ -1,4 +1,5 @@
 import type { SysmlNode } from "../sysml/parser";
+import type { StyleSheet } from "../style/style";
 import { flowchartDiagram } from "./flowchart";
 import { classDiagram } from "./class";
 import { stateDiagram } from "./state";
@@ -7,6 +8,8 @@ import { sequenceDiagram } from "./sequence";
 export interface DiagramConfig {
   direction: "TB" | "LR" | "BT" | "RL";
   theme: string;
+  /** Optional style sheet applied to elements by native type / SysML type. */
+  styleSheet?: StyleSheet;
 }
 
 export interface DiagramType {
