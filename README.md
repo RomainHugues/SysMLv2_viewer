@@ -6,7 +6,8 @@ right-click, and pick a diagram type — the package is shown in a webview panel
 with irrelevant elements filtered out. Several diagrams can be open at once
 (one per panel).
 
-Planned diagram types: **flowchart** (implemented), class, state, sequence.
+Diagram types: **flowchart**, **class**, **state** and **sequence** (all
+implemented). See [examples/](examples/README.md) for a sample model per type.
 
 ## How it works
 
@@ -59,16 +60,18 @@ Planned diagram types: **flowchart** (implemented), class, state, sequence.
 3. **Build / test:**
    ```bash
    npm run build          # bundle the extension + copy Mermaid into media/
-   npm test               # unit tests (Mermaid mapper)
-   npm run check-parser   # parse a sample with the bundled parser
-   node scripts/render-flow.mjs   # full parse → extract → Mermaid, printed
+   npm test                          # unit + integration tests
+   npm run check-parser              # parse a sample with the bundled parser
+   node scripts/render.mjs class examples/vehicle.sysml   # parse → extract → Mermaid
+   node scripts/verify-examples.mjs  # parse + render every example
    ```
 
 ## Try it
 
-Press **F5** (Run Extension). In the new window, open `examples/coffee.sysml`,
-put the cursor inside the `CoffeeMachine` package, right-click → **SysML
-Diagram → Show Flowchart Diagram**.
+Press **F5** (Run Extension). In the new window, open any file from
+[examples/](examples/README.md), put the cursor inside its package, right-click →
+**SysML Diagram → Show … Diagram** (Flowchart / Class / State / Sequence). Each
+command opens its own panel, so you can show several diagrams side by side.
 
 ## Settings
 

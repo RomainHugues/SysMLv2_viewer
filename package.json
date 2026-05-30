@@ -39,6 +39,21 @@
         "command": "sysmlMermaid.showFlowchart",
         "title": "Show Flowchart Diagram",
         "category": "SysML Mermaid"
+      },
+      {
+        "command": "sysmlMermaid.showClass",
+        "title": "Show Class Diagram",
+        "category": "SysML Mermaid"
+      },
+      {
+        "command": "sysmlMermaid.showState",
+        "title": "Show State Diagram",
+        "category": "SysML Mermaid"
+      },
+      {
+        "command": "sysmlMermaid.showSequence",
+        "title": "Show Sequence Diagram",
+        "category": "SysML Mermaid"
       }
     ],
     "submenus": [
@@ -58,6 +73,18 @@
       "sysmlMermaid.diagramMenu": [
         {
           "command": "sysmlMermaid.showFlowchart",
+          "when": "resourceLangId == sysml"
+        },
+        {
+          "command": "sysmlMermaid.showClass",
+          "when": "resourceLangId == sysml"
+        },
+        {
+          "command": "sysmlMermaid.showState",
+          "when": "resourceLangId == sysml"
+        },
+        {
+          "command": "sysmlMermaid.showSequence",
           "when": "resourceLangId == sysml"
         }
       ]
