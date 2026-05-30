@@ -5,6 +5,10 @@
   "version": "0.0.1",
   "publisher": "romain-hugues",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/romain-hugues/sysmlv2-mermaid-viewer"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -88,6 +92,8 @@
     "watch": "node esbuild.mjs --watch",
     "typecheck": "tsc --noEmit",
     "check-parser": "node scripts/check-parser-bundle.mjs examples/coffee.sysml",
+    "vendor": "node scripts/build-vendor.mjs",
+    "notices": "node scripts/gen-notices.mjs",
     "test": "vitest run",
     "package": "vsce package"
   },

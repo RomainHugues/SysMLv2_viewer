@@ -74,3 +74,15 @@ Diagram → Show Flowchart Diagram**.
 
 - `sysmlMermaid.flowchart.direction` — `TB` | `LR` | `BT` | `RL`
 - `sysmlMermaid.theme` — Mermaid theme (`default`, `dark`, `forest`, `neutral`)
+
+## License
+
+This extension's own code is licensed under the **MIT License** — see [LICENSE](LICENSE).
+
+The distributed extension bundles third-party open-source components, each under
+its own license: the SysML v2 parser `syside-languageserver` (and siblings) under
+**EPL-2.0 / GPL-2.0 with Classpath exception**, [Mermaid](https://github.com/mermaid-js/mermaid)
+and most others under **MIT**, and chevrotain under **Apache-2.0**. Full license
+texts and attributions are in [THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt)
+(regenerate with `node scripts/gen-notices.mjs`). The EPL-2.0 parser source is
+available, unmodified, at <https://github.com/sensmetry/sysml-2ls>.
