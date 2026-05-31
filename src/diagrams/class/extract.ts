@@ -1,6 +1,6 @@
 import type { SysmlNode } from "../../sysml/parser";
 import type { ClassModel, ClassNode, ClassRelation, ClassMember } from "./ir";
-import { styleInfo } from "../ast";
+import { styleInfo, docOf } from "../ast";
 import { matchStyle, type StyleSheet } from "../../style/style";
 
 // Definition $type -> stereotype (undefined = plain part/class box).
@@ -140,6 +140,7 @@ export function extractClass(pkg: SysmlNode, styleSheet?: StyleSheet): ClassMode
       members: [],
       literals: [],
       style: matchStyle(styleSheet, styleInfo(def)),
+      doc: docOf(def),
     };
     classes.push(node);
     byId.set(id, node);

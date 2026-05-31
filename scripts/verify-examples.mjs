@@ -22,6 +22,9 @@ const MAP = {
   "order_protocol.sysml": "sequence",
   "auth_handshake.sysml": "sequence",
   "atm_withdrawal.sysml": "sequence",
+  "arcadia/drone_system.sysml": "class",
+  "naf/c2_system.sysml": "class",
+  "vehicle_requirements.sysml": "requirement",
 };
 
 const harness = `

@@ -1,0 +1,25 @@
+{
+  "name": "NAF v4 (by grid layer)",
+  "rules": [
+    {
+      "type": "Capability",
+      "style": { "fill": "#c9b3e0", "stroke": "#7030a0", "color": "#000000" }
+    },
+    {
+      "type": ["Service", "ServiceFunction"],
+      "style": { "fill": "#9dc3e6", "stroke": "#2e75b6", "color": "#000000" }
+    },
+    {
+      "type": ["LogicalNode", "OperationalActivity"],
+      "style": { "fill": "#a9d08e", "stroke": "#548235", "color": "#000000" }
+    },
+    {
+      "type": "PhysicalResource",
+      "style": { "fill": "#f4b183", "stroke": "#c55a11", "color": "#000000" }
+    },
+    {
+      "type": "ArchitectureFoundation",
+      "style": { "fill": "#d9d9d9", "stroke": "#808080", "color": "#000000" }
+    }
+  ]
+}

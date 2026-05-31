@@ -43,6 +43,31 @@ export function cstText(node: SysmlNode): string {
   return (node?.$cstNode?.text ?? "").replace(/\s+/g, " ").trim();
 }
 
+/** Documentation text of an element (`doc /* ... *​/`), cleaned to one line. */
+export function docOf(node: SysmlNode): string | undefined {
+  // the Documentation node is wrapped in an (Owning)Membership under the element
+  const candidates: SysmlNode[] = [];
+  for (const child of childNodes(node)) {
+    candidates.push(child);
+    if (child.$type.endsWith("Membership")) candidates.push(...childNodes(child));
+  }
+  for (const child of candidates) {
+    if (child.$type !== "Documentation" && child.$type !== "Comment") continue;
+    let body: string = (child.body as string) ?? cstText(child);
+    if (!body) continue;
+    body = body
+      .replace(/^\s*doc\b/i, "")
+      .replace(/^\s*\/\*+/, "")
+      .replace(/\*+\/\s*$/, "")
+      .replace(/^\s*\/\//, "")
+      .replace(/^\s*\*+/gm, "")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (body) return body;
+  }
+  return undefined;
+}
+
 /**
  * Style classification for an element: its native SysML type ($type, e.g.
  * "PartUsage") and the qualified names of every type it conforms to, following

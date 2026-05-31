@@ -15,9 +15,10 @@ export interface ClassNode {
   literals: string[]; // enumeration values
   external?: boolean; // referenced but defined outside the package
   style?: StyleProps;
+  doc?: string; // documentation text shown inside the box
 }
 
-export type RelationKind = "inheritance" | "composition" | "association";
+export type RelationKind = "inheritance" | "composition" | "association" | "dependency";
 
 export interface ClassRelation {
   source: string; // owner / subclass id

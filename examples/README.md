@@ -17,6 +17,7 @@ inside the package, then right-click → **SysML Diagram → Show … Diagram**.
 | [order_protocol.sysml](order_protocol.sysml) | `OrderProtocol` | Sequence | participants and directed flow messages |
 | [auth_handshake.sysml](auth_handshake.sysml) | `AuthHandshake` | Sequence | an authentication handshake |
 | [atm_withdrawal.sysml](atm_withdrawal.sysml) | `AtmWithdrawal` | Sequence | an ATM withdrawal message flow |
+| [vehicle_requirements.sysml](vehicle_requirements.sysml) | `VehicleRequirements` | Requirement | requirement defs, subject, derivation, decomposition and satisfy |
 
 > Note: attribute types such as `Real`, `String`, `Boolean` come from the SysML
 > standard library. Without that library configured they show as "unresolved" in

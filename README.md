@@ -6,8 +6,9 @@ right-click, and pick a diagram type — the package is shown in a webview panel
 with irrelevant elements filtered out. Several diagrams can be open at once
 (one per panel).
 
-Diagram types: **flowchart**, **class**, **state** and **sequence** (all
-implemented). See [examples/](examples/README.md) for a sample model per type.
+Diagram types: **flowchart**, **class**, **state**, **sequence** and
+**requirement** (all implemented). See [examples/](examples/README.md) for a
+sample model per type.
 
 ## How it works
 
@@ -123,9 +124,17 @@ don't appear.
 - Styling applies to flowchart, class and state diagrams (via Mermaid `classDef`);
   sequence participants are coloured via Mermaid `box`.
 
-A ready-made **Arcadia** profile lives in [examples/arcadia/](examples/arcadia/):
-a reusable stereotype library (`ArcadiaProfile.sysml`), the colour code
-(`arcadia.style.json`), and a sample model (`drone_system.sysml`).
+Ready-made methodology profiles (reusable stereotype library + colour code + sample model):
+
+- **Arcadia** — [examples/arcadia/](examples/arcadia/README.md) (functions green, logical blue, physical yellow, operational orange).
+- **NAF v4** — [examples/naf/](examples/naf/README.md) (colour by grid layer: Concepts purple, Service blue, Logical green, Physical orange).
+
+## Manual
+
+A PDF user manual (features, changelog, and every example with its
+syntax-highlighted SysML, the generated diagram, and a short explanation) is in
+[manual/SysML-Mermaid-Viewer-Manual.pdf](manual/SysML-Mermaid-Viewer-Manual.pdf).
+Regenerate it with `npm run manual` (renders via headless Edge/Chrome).
 
 ## License
 

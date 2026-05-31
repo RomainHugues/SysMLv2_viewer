@@ -5,3 +5,7 @@ out/
 .vscode-test/
 *.tsbuildinfo
 media/mermaid.min.js
+
+# manual: keep the generated PDF, ignore regenerable intermediates
+manual/manual.html
+manual/_*

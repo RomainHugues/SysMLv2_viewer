@@ -57,6 +57,11 @@
         "category": "SysML Mermaid"
       },
       {
+        "command": "sysmlMermaid.showRequirement",
+        "title": "Show Requirement Diagram",
+        "category": "SysML Mermaid"
+      },
+      {
         "command": "sysmlMermaid.selectStyleFile",
         "title": "Select Style File…",
         "category": "SysML Mermaid"
@@ -101,6 +106,10 @@
         },
         {
           "command": "sysmlMermaid.showSequence",
+          "when": "resourceLangId == sysml"
+        },
+        {
+          "command": "sysmlMermaid.showRequirement",
           "when": "resourceLangId == sysml"
         }
       ]
@@ -151,6 +160,7 @@
     "check-parser": "node scripts/check-parser-bundle.mjs examples/coffee.sysml",
     "vendor": "node scripts/build-vendor.mjs",
     "notices": "node scripts/gen-notices.mjs",
+    "manual": "node scripts/gen-manual.mjs",
     "test": "vitest run",
     "package": "vsce package"
   },

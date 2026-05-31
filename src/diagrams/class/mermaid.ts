@@ -6,6 +6,12 @@ function sanitize(name: string): string {
   return /^[A-Za-z_]/.test(s) ? s : "c_" + s;
 }
 
+/** A one-line, Mermaid-safe rendering of documentation text for a class body. */
+function docLine(doc: string): string {
+  const t = doc.replace(/[:(){}|"~;[\]<>]/g, " ").replace(/\s+/g, " ").trim();
+  return t.length > 72 ? t.slice(0, 70) + "…" : t;
+}
+
 /** Render a class model as Mermaid `classDiagram` text. */
 export function classToMermaid(model: ClassModel): string {
   const lines: string[] = ["classDiagram"];
@@ -35,6 +41,7 @@ export function classToMermaid(model: ClassModel): string {
     const sid = idFor(c.id);
     const body: string[] = [];
     if (c.stereotype) body.push(`    <<${c.stereotype}>>`);
+    if (c.doc) body.push(`    ${docLine(c.doc)}`);
     for (const lit of c.literals) body.push(`    ${lit}`);
     for (const m of c.members) body.push(`    +${m.name}${m.type ? " : " + m.type : ""}`);
 
@@ -57,10 +64,10 @@ export function classToMermaid(model: ClassModel): string {
     const a = idFor(r.source);
     const b = idFor(r.target);
     if (r.kind === "inheritance") {
-      // `Base <|-- Derived`
-      lines.push(`  ${b} <|-- ${a}`);
+      // `Base <|-- Derived` (optional label, e.g. "derive" for requirements)
+      lines.push(`  ${b} <|-- ${a}${r.label ? " : " + r.label : ""}`);
     } else {
-      const arrow = r.kind === "composition" ? "*--" : "-->";
+      const arrow = r.kind === "composition" ? "*--" : r.kind === "dependency" ? "..>" : "-->";
       // multiplicity belongs to the target end (e.g. a Vehicle has "4" Wheels)
       const mult = r.multiplicity ? `"${r.multiplicity}" ` : "";
       const label = r.label ? ` : ${r.label}` : "";
