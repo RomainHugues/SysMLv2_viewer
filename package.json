@@ -1,7 +1,7 @@
 {
-  "name": "sysmlv2-mermaid-viewer",
-  "displayName": "SysML v2 Mermaid Viewer",
-  "description": "Render the contents of a SysML v2 package as a Mermaid diagram (flowchart, class, state, sequence).",
+  "name": "celeris",
+  "displayName": "Celeris",
+  "description": "SysMLv2 Mermaid Viewer",
   "version": "0.0.1",
   "publisher": "romain-hugues",
   "license": "MIT",
@@ -37,87 +37,87 @@
     ],
     "commands": [
       {
-        "command": "sysmlMermaid.showFlowchart",
+        "command": "celeris.showFlowchart",
         "title": "Show Flowchart Diagram",
-        "category": "SysML Mermaid"
+        "category": "Celeris"
       },
       {
-        "command": "sysmlMermaid.showClass",
+        "command": "celeris.showClass",
         "title": "Show Class Diagram",
-        "category": "SysML Mermaid"
+        "category": "Celeris"
       },
       {
-        "command": "sysmlMermaid.showState",
+        "command": "celeris.showState",
         "title": "Show State Diagram",
-        "category": "SysML Mermaid"
+        "category": "Celeris"
       },
       {
-        "command": "sysmlMermaid.showSequence",
+        "command": "celeris.showSequence",
         "title": "Show Sequence Diagram",
-        "category": "SysML Mermaid"
+        "category": "Celeris"
       },
       {
-        "command": "sysmlMermaid.showRequirement",
+        "command": "celeris.showRequirement",
         "title": "Show Requirement Diagram",
-        "category": "SysML Mermaid"
+        "category": "Celeris"
       },
       {
-        "command": "sysmlMermaid.selectStyleFile",
+        "command": "celeris.selectStyleFile",
         "title": "Select Style File…",
-        "category": "SysML Mermaid"
+        "category": "Celeris"
       },
       {
-        "command": "sysmlMermaid.clearStyleFile",
+        "command": "celeris.clearStyleFile",
         "title": "Clear Style File",
-        "category": "SysML Mermaid"
+        "category": "Celeris"
       },
       {
-        "command": "sysmlMermaid.showLog",
+        "command": "celeris.showLog",
         "title": "Show Log",
-        "category": "SysML Mermaid"
+        "category": "Celeris"
       }
     ],
     "submenus": [
       {
-        "id": "sysmlMermaid.diagramMenu",
-        "label": "SysML Diagram"
+        "id": "celeris.diagramMenu",
+        "label": "Celeris"
       }
     ],
     "menus": {
       "editor/context": [
         {
-          "submenu": "sysmlMermaid.diagramMenu",
+          "submenu": "celeris.diagramMenu",
           "group": "navigation@9",
           "when": "resourceLangId == sysml"
         }
       ],
-      "sysmlMermaid.diagramMenu": [
+      "celeris.diagramMenu": [
         {
-          "command": "sysmlMermaid.showFlowchart",
+          "command": "celeris.showFlowchart",
           "when": "resourceLangId == sysml"
         },
         {
-          "command": "sysmlMermaid.showClass",
+          "command": "celeris.showClass",
           "when": "resourceLangId == sysml"
         },
         {
-          "command": "sysmlMermaid.showState",
+          "command": "celeris.showState",
           "when": "resourceLangId == sysml"
         },
         {
-          "command": "sysmlMermaid.showSequence",
+          "command": "celeris.showSequence",
           "when": "resourceLangId == sysml"
         },
         {
-          "command": "sysmlMermaid.showRequirement",
+          "command": "celeris.showRequirement",
           "when": "resourceLangId == sysml"
         }
       ]
     },
     "configuration": {
-      "title": "SysML Mermaid Viewer",
+      "title": "Celeris",
       "properties": {
-        "sysmlMermaid.flowchart.direction": {
+        "celeris.flowchart.direction": {
           "type": "string",
           "enum": [
             "TB",
@@ -128,7 +128,7 @@
           "default": "TB",
           "description": "Flowchart layout direction (top-bottom, left-right, ...)."
         },
-        "sysmlMermaid.theme": {
+        "celeris.theme": {
           "type": "string",
           "enum": [
             "default",
@@ -139,12 +139,12 @@
           "default": "default",
           "description": "Mermaid rendering theme."
         },
-        "sysmlMermaid.autoRefreshOnSave": {
+        "celeris.autoRefreshOnSave": {
           "type": "boolean",
           "default": true,
           "description": "Automatically refresh open diagrams when their .sysml file is saved."
         },
-        "sysmlMermaid.styleFile": {
+        "celeris.styleFile": {
           "type": "string",
           "default": null,
           "markdownDescription": "Path to a JSON style file that colors diagram elements by native SysML type and/or the SysML type they conform to. Absolute, or relative to the workspace folder or the .sysml file. See `examples/arcadia/arcadia.style.json`."

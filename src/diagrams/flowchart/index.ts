@@ -4,7 +4,7 @@ import { flowToMermaid } from "./mermaid";
 
 export const flowchartDiagram: DiagramType = {
   id: "flowchart",
-  commandId: "sysmlMermaid.showFlowchart",
+  commandId: "celeris.showFlowchart",
   label: "Flowchart",
   build(pkg, config) {
     const model = extractFlow(pkg, config.styleSheet);

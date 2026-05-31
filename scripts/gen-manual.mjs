@@ -38,7 +38,7 @@ const EXAMPLES = [
 ];
 
 const FEATURES = [
-  "Render the contents of a SysML v2 package as a Mermaid diagram from the editor (right-click → SysML Diagram).",
+  "Render the contents of a SysML v2 package as a Mermaid diagram from the editor (right-click → Celeris).",
   "Five diagram types: flowchart, class, state, sequence and requirement.",
   "In-process parsing with the open-source SysML v2 parser (syside-languageserver); reusable profile libraries in sibling files are resolved automatically.",
   "Per-panel toolbar: ⟳ Refresh, ⤓ PNG export, zoom/pan controls (−, 1:1, +, Fit, mouse-wheel zoom, drag-to-pan), and a syntax-error indicator.",
@@ -193,7 +193,7 @@ const browsers = [
 const browser = browsers.find((b) => fs.existsSync(b));
 if (!browser) throw new Error("No Edge/Chrome found to render the PDF.");
 
-const pdfFile = path.join(manualDir, "SysML-Mermaid-Viewer-Manual.pdf");
+const pdfFile = path.join(manualDir, "Celeris-Manual.pdf");
 execFileSync(browser, [
   "--headless",
   "--disable-gpu",

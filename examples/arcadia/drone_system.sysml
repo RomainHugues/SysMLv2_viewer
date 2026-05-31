@@ -1,5 +1,5 @@
 // Arcadia-styled example: a small drone surveillance system.
-// View as a Class diagram with sysmlMermaid.styleFile pointing at
+// View as a Class diagram with celeris.styleFile pointing at
 // examples/arcadia/arcadia.style.json to get the Arcadia colour code:
 //   LogicalComponent -> blue, PhysicalNode -> yellow, OperationalEntity -> orange,
 //   functions (actions) -> green.
@@ -12,7 +12,7 @@ package DroneSystem {
 
     // --- Logical components (blue) ---
     part def FlightController :> LogicalComponent {
-        doc  {"flight controller"}
+        doc /* flight controller */
         part navigation : NavigationUnit;
         part comms : CommsUnit;
     }

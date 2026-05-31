@@ -16,7 +16,7 @@ export interface DiagramConfig {
 export interface DiagramType {
   /** Stable id, e.g. "flowchart". */
   id: string;
-  /** VS Code command id, e.g. "sysmlMermaid.showFlowchart". */
+  /** VS Code command id, e.g. "celeris.showFlowchart". */
   commandId: string;
   /** Human label used in menus and panel titles. */
   label: string;

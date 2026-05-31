@@ -1,7 +1,7 @@
 # Arcadia profile example
 
 Demonstrates styling diagram elements with the [Arcadia](https://mbse-capella.org/arcadia.html)
-colour code, driven by `sysmlMermaid.styleFile`.
+colour code, driven by `celeris.styleFile`.
 
 | File | Role |
 | --- | --- |
@@ -13,10 +13,10 @@ colour code, driven by `sysmlMermaid.styleFile`.
 
 1. Set the style file in VS Code settings (`.vscode/settings.json` or user settings):
    ```json
-   { "sysmlMermaid.styleFile": "examples/arcadia/arcadia.style.json" }
+   { "celeris.styleFile": "examples/arcadia/arcadia.style.json" }
    ```
 2. Open [drone_system.sysml](drone_system.sysml), put the cursor in the
-   `DroneSystem` package, right-click → **SysML Diagram → Show Class Diagram**.
+   `DroneSystem` package, right-click → **Celeris → Show Class Diagram**.
 
 Expected colours:
 

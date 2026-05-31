@@ -6,7 +6,7 @@ import { showDiagramPanel, type RefreshResult } from "./webview/panel";
 import { loadStyleSheet } from "./style/load";
 import { log, showLog } from "./log";
 
-const STYLE_PATH_KEY = "sysmlMermaid.selectedStyleFile";
+const STYLE_PATH_KEY = "celeris.selectedStyleFile";
 
 /** Open diagram panels that can be auto-refreshed when their source file is saved. */
 interface OpenDiagram {
@@ -23,16 +23,16 @@ export function activate(context: vscode.ExtensionContext): void {
   }
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("sysmlMermaid.selectStyleFile", () => selectStyleFile(context)),
-    vscode.commands.registerCommand("sysmlMermaid.clearStyleFile", () => clearStyleFile(context)),
-    vscode.commands.registerCommand("sysmlMermaid.showLog", () => showLog())
+    vscode.commands.registerCommand("celeris.selectStyleFile", () => selectStyleFile(context)),
+    vscode.commands.registerCommand("celeris.clearStyleFile", () => clearStyleFile(context)),
+    vscode.commands.registerCommand("celeris.showLog", () => showLog())
   );
 
   // Auto-refresh open diagrams when their .sysml source is saved (if enabled).
   context.subscriptions.push(
     vscode.workspace.onDidSaveTextDocument((doc) => {
       if (doc.languageId !== "sysml") return;
-      if (!vscode.workspace.getConfiguration("sysmlMermaid").get<boolean>("autoRefreshOnSave", true)) {
+      if (!vscode.workspace.getConfiguration("celeris").get<boolean>("autoRefreshOnSave", true)) {
         return;
       }
       for (const d of openDiagrams) {
@@ -56,19 +56,19 @@ async function selectStyleFile(context: vscode.ExtensionContext): Promise<void> 
   const fsPath = picked[0].fsPath;
   await context.globalState.update(STYLE_PATH_KEY, fsPath);
   log(`selected style file set to: ${fsPath}`);
-  vscode.window.showInformationMessage(`SysML Mermaid style: ${fsPath}`);
+  vscode.window.showInformationMessage(`Celeris style: ${fsPath}`);
   refreshAll();
 }
 
 async function clearStyleFile(context: vscode.ExtensionContext): Promise<void> {
   await context.globalState.update(STYLE_PATH_KEY, undefined);
   log("selected style file cleared");
-  vscode.window.showInformationMessage("SysML Mermaid: style cleared.");
+  vscode.window.showInformationMessage("Celeris: style cleared.");
   refreshAll();
 }
 
 function readConfig(sourceUri: vscode.Uri, context: vscode.ExtensionContext): DiagramConfig {
-  const cfg = vscode.workspace.getConfiguration("sysmlMermaid");
+  const cfg = vscode.workspace.getConfiguration("celeris");
   const selected = context.globalState.get<string>(STYLE_PATH_KEY);
   return {
     direction: cfg.get<DiagramConfig["direction"]>("flowchart.direction", "TB"),

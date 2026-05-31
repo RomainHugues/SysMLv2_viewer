@@ -17,5 +17,5 @@ CLAUDE.md
 *.vsix
 doc/**
 TODO
-icons/logo.svg
+celeris.png
 manual/**

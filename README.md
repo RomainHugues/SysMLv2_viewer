@@ -1,7 +1,7 @@
-# SysML v2 Mermaid Viewer
+# Celeris
 
-A VS Code extension that renders the contents of a **SysML v2 package** as a
-**Mermaid** diagram. Put your cursor inside a package in a `.sysml` file,
+**SysMLv2 Mermaid Viewer** — a VS Code extension that renders the contents of a
+**SysML v2 package** as a **Mermaid** diagram. Put your cursor inside a package in a `.sysml` file,
 right-click, and pick a diagram type — the package is shown in a webview panel,
 with irrelevant elements filtered out. Several diagrams can be open at once
 (one per panel).
@@ -71,7 +71,7 @@ sample model per type.
 
 Press **F5** (Run Extension). In the new window, open any file from
 [examples/](examples/README.md), put the cursor inside its package, right-click →
-**SysML Diagram → Show … Diagram** (Flowchart / Class / State / Sequence). Each
+**Celeris → Show … Diagram** (Flowchart / Class / State / Sequence). Each
 command opens its own panel, so you can show several diagrams side by side.
 
 Each panel has a toolbar: **⟳ Refresh** redraws from the current source,
@@ -82,18 +82,18 @@ mouse wheel (toward the cursor), drag to pan, and use the keys `+` / `-` / `0`
 
 ## Settings
 
-- `sysmlMermaid.flowchart.direction` — `TB` | `LR` | `BT` | `RL`
-- `sysmlMermaid.theme` — Mermaid theme (`default`, `dark`, `forest`, `neutral`)
-- `sysmlMermaid.autoRefreshOnSave` — redraw open diagrams when their `.sysml`
+- `celeris.flowchart.direction` — `TB` | `LR` | `BT` | `RL`
+- `celeris.theme` — Mermaid theme (`default`, `dark`, `forest`, `neutral`)
+- `celeris.autoRefreshOnSave` — redraw open diagrams when their `.sysml`
   file is saved (default: `true`). Each panel also has a **⟳ Refresh** button
   for an on-demand update.
-- `sysmlMermaid.styleFile` — path to a JSON style file (see below).
+- `celeris.styleFile` — path to a JSON style file (see below).
 
 ## Styling elements by SysML type
 
 You can colour diagram elements by their **native SysML type** (`PartUsage`,
 `ActionDefinition`, …) and/or by the **SysML type they conform to** (typing or
-specialization, followed through the hierarchy). Point `sysmlMermaid.styleFile`
+specialization, followed through the hierarchy). Point `celeris.styleFile`
 at a JSON file:
 
 ```json
@@ -109,14 +109,14 @@ at a JSON file:
 
 **Two ways to activate a style file:**
 
-1. **Command (recommended, most reliable):** run **SysML Mermaid: Select Style
+1. **Command (recommended, most reliable):** run **Celeris: Select Style
    File…** from the Command Palette and pick the JSON. The absolute path is
    remembered globally (independent of workspace/settings) and open diagrams
-   refresh immediately. **SysML Mermaid: Clear Style File** removes it.
-2. **Setting:** `sysmlMermaid.styleFile` (absolute, or relative to the workspace
+   refresh immediately. **Celeris: Clear Style File** removes it.
+2. **Setting:** `celeris.styleFile` (absolute, or relative to the workspace
    folder / the `.sysml` file).
 
-Run **SysML Mermaid: Show Log** (Output → "SysML Mermaid") to see which style
+Run **Celeris: Show Log** (Output → "Celeris") to see which style
 file was loaded and how many style directives were emitted — handy if colours
 don't appear.
 
@@ -136,7 +136,7 @@ Ready-made methodology profiles (reusable stereotype library + colour code + sam
 
 A PDF user manual (features, changelog, and every example with its
 syntax-highlighted SysML, the generated diagram, and a short explanation) is in
-[manual/SysML-Mermaid-Viewer-Manual.pdf](manual/SysML-Mermaid-Viewer-Manual.pdf).
+[manual/Celeris-Manual.pdf](manual/Celeris-Manual.pdf).
 Regenerate it with `npm run manual` (renders via headless Edge/Chrome).
 
 ## License

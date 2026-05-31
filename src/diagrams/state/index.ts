@@ -4,7 +4,7 @@ import { stateToMermaid } from "./mermaid";
 
 export const stateDiagram: DiagramType = {
   id: "state",
-  commandId: "sysmlMermaid.showState",
+  commandId: "celeris.showState",
   label: "State",
   build(pkg, config) {
     const model = extractState(pkg, config.styleSheet);

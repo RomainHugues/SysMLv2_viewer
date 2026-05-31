@@ -4,7 +4,7 @@ import { sequenceToMermaid } from "./mermaid";
 
 export const sequenceDiagram: DiagramType = {
   id: "sequence",
-  commandId: "sysmlMermaid.showSequence",
+  commandId: "celeris.showSequence",
   label: "Sequence",
   build(pkg, config) {
     const model = extractSequence(pkg, config.styleSheet);

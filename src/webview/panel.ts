@@ -33,7 +33,7 @@ export interface ShownPanel {
 export function showDiagramPanel(opts: DiagramPanelOptions): ShownPanel {
   const mediaRoot = vscode.Uri.joinPath(opts.context.extensionUri, "media");
   const panel = vscode.window.createWebviewPanel(
-    "sysmlMermaid.diagram",
+    "celeris.diagram",
     opts.title,
     vscode.ViewColumn.Beside,
     {

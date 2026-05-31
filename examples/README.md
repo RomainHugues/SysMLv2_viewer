@@ -1,7 +1,7 @@
 # Examples
 
 Sample SysML v2 models, one column per diagram type. Open a file, put the cursor
-inside the package, then right-click → **SysML Diagram → Show … Diagram**.
+inside the package, then right-click → **Celeris → Show … Diagram**.
 
 | File | Package | Best viewed as | Illustrates |
 | --- | --- | --- | --- |

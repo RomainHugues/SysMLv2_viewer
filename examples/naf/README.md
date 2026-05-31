@@ -1,7 +1,7 @@
 # NAF v4 profile example
 
 Colours diagram elements by **NAF v4 grid layer** (the grid rows / "subjects of
-concern"), driven by `sysmlMermaid` styling.
+concern"), driven by `celeris` styling.
 
 | File | Role |
 | --- | --- |
@@ -11,10 +11,10 @@ concern"), driven by `sysmlMermaid` styling.
 
 ## How to view it with colours
 
-1. Command Palette → **SysML Mermaid: Select Style File…** → pick
+1. Command Palette → **Celeris: Select Style File…** → pick
    [naf.style.json](naf.style.json).
 2. Open [c2_system.sysml](c2_system.sysml), cursor in `C2System`, right-click →
-   **SysML Diagram → Show Class Diagram**.
+   **Celeris → Show Class Diagram**.
 
 Layer colours (a sensible convention — NAF v4 does not mandate an official
 palette):

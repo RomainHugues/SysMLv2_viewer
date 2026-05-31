@@ -4,7 +4,7 @@ import { classToMermaid } from "../class/mermaid";
 
 export const requirementDiagram: DiagramType = {
   id: "requirement",
-  commandId: "sysmlMermaid.showRequirement",
+  commandId: "celeris.showRequirement",
   label: "Requirement",
   build(pkg, config) {
     const model = extractRequirements(pkg, config.styleSheet);
