@@ -74,8 +74,11 @@ Press **F5** (Run Extension). In the new window, open any file from
 **SysML Diagram → Show … Diagram** (Flowchart / Class / State / Sequence). Each
 command opens its own panel, so you can show several diagrams side by side.
 
-Each panel has a toolbar: **⟳ Refresh** redraws from the current source, and
-**⤓ PNG** exports the diagram as a PNG image.
+Each panel has a toolbar: **⟳ Refresh** redraws from the current source,
+**⤓ PNG** exports the diagram, and zoom/pan controls — **−**, **1:1** (actual
+size), **+**, **⤢ Fit** (auto-fit to the window). You can also zoom with the
+mouse wheel (toward the cursor), drag to pan, and use the keys `+` / `-` / `0`
+(1:1) / `f` (fit).
 
 ## Settings
 

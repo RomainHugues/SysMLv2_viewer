@@ -129,30 +129,44 @@ function renderHtml(webview: vscode.Webview, mediaRoot: vscode.Uri, opts: Diagra
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${escapeHtml(opts.title)}</title>
   <style>
-    body { margin: 0; padding: 0; background: #ffffff; color: #1e1e1e; font-family: var(--vscode-font-family); }
-    #toolbar { position: sticky; top: 0; display: flex; align-items: center; gap: 10px;
+    html, body { height: 100%; }
+    body { margin: 0; background: #ffffff; color: #1e1e1e; font-family: var(--vscode-font-family);
+      display: flex; flex-direction: column; }
+    #toolbar { flex: 0 0 auto; display: flex; align-items: center; gap: 8px;
       padding: 6px 12px; background: #f3f3f3; border-bottom: 1px solid #ddd; }
-    #toolbar button { font: inherit; padding: 3px 10px; cursor: pointer; }
+    #toolbar button { font: inherit; padding: 3px 9px; cursor: pointer; }
+    #toolbar .sep { width: 1px; align-self: stretch; background: #ddd; }
+    #zoom { color: #666; font-size: 12px; min-width: 44px; text-align: center; }
     #status { color: #666; font-size: 12px; }
     #warning { margin-left: auto; color: #8a6d00; background: #fff4ce; border: 1px solid #e6c77a;
       border-radius: 3px; padding: 2px 8px; font-size: 12px; display: none; }
-    #content { padding: 12px; }
-    #diagram { width: 100%; overflow: auto; }
-    #diagram svg { max-width: 100%; height: auto; }
-    .error { color: #b00020; white-space: pre-wrap; font-family: var(--vscode-editor-font-family, monospace); }
-    details { margin-top: 16px; color: #555; }
-    pre.src { white-space: pre-wrap; font-family: var(--vscode-editor-font-family, monospace); background: #f3f3f3; padding: 8px; border-radius: 4px; }
+    #viewport { flex: 1 1 auto; position: relative; overflow: hidden; background: #fff; cursor: grab; }
+    #viewport.panning { cursor: grabbing; }
+    #canvas { position: absolute; top: 0; left: 0; transform-origin: 0 0; }
+    #canvas svg { display: block; }
+    .error { color: #b00020; white-space: pre-wrap; font-family: var(--vscode-editor-font-family, monospace); padding: 12px; }
+    #footer { flex: 0 0 auto; border-top: 1px solid #ddd; max-height: 28vh; overflow: auto; }
+    #footer details { margin: 0; color: #555; }
+    #footer summary { padding: 6px 12px; cursor: pointer; user-select: none; }
+    pre.src { white-space: pre-wrap; font-family: var(--vscode-editor-font-family, monospace);
+      background: #f6f8fc; margin: 0; padding: 8px 12px; font-size: 11px; }
   </style>
 </head>
 <body>
   <div id="toolbar">
     <button id="refresh" title="Re-parse the .sysml file and redraw">⟳ Refresh</button>
     <button id="export" title="Export the diagram as a PNG image">⤓ PNG</button>
+    <span class="sep"></span>
+    <button id="zoomout" title="Zoom out">−</button>
+    <button id="zoom100" title="Actual size (1:1)">1:1</button>
+    <button id="zoomin" title="Zoom in">+</button>
+    <button id="fit" title="Fit to window (auto)">⤢ Fit</button>
+    <span id="zoom">100%</span>
     <span id="status"></span>
     <span id="warning" title="The file has syntax errors; some elements may be missing from the diagram."></span>
   </div>
-  <div id="content">
-    <div id="diagram">Rendering…</div>
+  <div id="viewport"><div id="canvas">Rendering…</div></div>
+  <div id="footer">
     <details>
       <summary>Mermaid source</summary>
       <pre class="src" id="src"></pre>
@@ -162,14 +176,49 @@ function renderHtml(webview: vscode.Webview, mediaRoot: vscode.Uri, opts: Diagra
   <script nonce="${nonce}">
     (function () {
       const vscode = acquireVsCodeApi();
-      const target = document.getElementById("diagram");
+      const viewport = document.getElementById("viewport");
+      const canvas = document.getElementById("canvas");
       const srcEl = document.getElementById("src");
       const statusEl = document.getElementById("status");
+      const zoomEl = document.getElementById("zoom");
       const warningEl = document.getElementById("warning");
       const refreshBtn = document.getElementById("refresh");
       const exportBtn = document.getElementById("export");
       let seq = 0;
       let lastSvg = null;
+
+      // --- pan / zoom state ---
+      let scale = 1, tx = 0, ty = 0, natW = 0, natH = 0;
+      function applyTransform() {
+        canvas.style.transform = "translate(" + tx + "px," + ty + "px) scale(" + scale + ")";
+        zoomEl.textContent = Math.round(scale * 100) + "%";
+      }
+      function fit() {
+        if (!natW || !natH) return;
+        const vw = viewport.clientWidth, vh = viewport.clientHeight;
+        const s = Math.min(vw / natW, vh / natH) * 0.98;
+        scale = s > 0 && isFinite(s) ? s : 1;
+        tx = (vw - natW * scale) / 2;
+        ty = (vh - natH * scale) / 2;
+        applyTransform();
+      }
+      function actualSize() {
+        const vw = viewport.clientWidth, vh = viewport.clientHeight;
+        scale = 1;
+        tx = Math.max(0, (vw - natW) / 2);
+        ty = Math.max(0, (vh - natH) / 2);
+        applyTransform();
+      }
+      function zoomAt(factor, cx, cy) {
+        const ns = Math.min(20, Math.max(0.05, scale * factor));
+        const wx = (cx - tx) / scale, wy = (cy - ty) / scale;
+        scale = ns; tx = cx - wx * ns; ty = cy - wy * ns;
+        applyTransform();
+      }
+      function centerZoom(factor) {
+        const r = viewport.getBoundingClientRect();
+        zoomAt(factor, r.width / 2, r.height / 2);
+      }
 
       function showWarning(parseErrors) {
         if (parseErrors > 0) {
@@ -181,8 +230,10 @@ function renderHtml(webview: vscode.Webview, mediaRoot: vscode.Uri, opts: Diagra
       }
 
       function showError(message) {
-        target.innerHTML = '<div class="error"></div>';
-        target.firstChild.textContent = message;
+        lastSvg = null; exportBtn.disabled = true;
+        canvas.style.transform = "none";
+        canvas.innerHTML = '<div class="error"></div>';
+        canvas.firstChild.textContent = message;
       }
 
       function render(definition, theme) {
@@ -200,16 +251,24 @@ function renderHtml(webview: vscode.Webview, mediaRoot: vscode.Uri, opts: Diagra
           });
           mermaid.render(id, definition)
             .then(function (res) {
-              target.innerHTML = res.svg;
-              lastSvg = target.querySelector("svg");
+              canvas.innerHTML = res.svg;
+              lastSvg = canvas.querySelector("svg");
               exportBtn.disabled = !lastSvg;
+              if (lastSvg) {
+                const vb = lastSvg.viewBox && lastSvg.viewBox.baseVal;
+                const bb = lastSvg.getBBox ? lastSvg.getBBox() : null;
+                natW = (vb && vb.width) || (bb && bb.width) || 600;
+                natH = (vb && vb.height) || (bb && bb.height) || 400;
+                lastSvg.style.maxWidth = "none";
+                lastSvg.setAttribute("width", natW);
+                lastSvg.setAttribute("height", natH);
+                fit(); // auto-fit each fresh render
+              }
             })
             .catch(function (err) {
-              lastSvg = null; exportBtn.disabled = true;
               showError("Mermaid render error:\\n" + (err && err.message ? err.message : String(err)));
             });
         } catch (err) {
-          lastSvg = null; exportBtn.disabled = true;
           showError(String(err));
         }
       }
@@ -265,6 +324,43 @@ function renderHtml(webview: vscode.Webview, mediaRoot: vscode.Uri, opts: Diagra
       exportBtn.addEventListener("click", function () {
         setBusy(true, "Exporting…");
         exportPng();
+      });
+
+      // --- zoom / pan controls ---
+      document.getElementById("zoomin").addEventListener("click", function () { centerZoom(1.2); });
+      document.getElementById("zoomout").addEventListener("click", function () { centerZoom(1 / 1.2); });
+      document.getElementById("zoom100").addEventListener("click", actualSize);
+      document.getElementById("fit").addEventListener("click", fit);
+
+      viewport.addEventListener("wheel", function (e) {
+        if (!lastSvg) return;
+        e.preventDefault();
+        const r = viewport.getBoundingClientRect();
+        zoomAt(e.deltaY < 0 ? 1.12 : 1 / 1.12, e.clientX - r.left, e.clientY - r.top);
+      }, { passive: false });
+
+      let dragging = false, lastX = 0, lastY = 0;
+      viewport.addEventListener("mousedown", function (e) {
+        if (!lastSvg) return;
+        dragging = true; lastX = e.clientX; lastY = e.clientY;
+        viewport.classList.add("panning");
+      });
+      window.addEventListener("mousemove", function (e) {
+        if (!dragging) return;
+        tx += e.clientX - lastX; ty += e.clientY - lastY;
+        lastX = e.clientX; lastY = e.clientY;
+        applyTransform();
+      });
+      window.addEventListener("mouseup", function () {
+        dragging = false; viewport.classList.remove("panning");
+      });
+      // keyboard: +/- zoom, 0 = 1:1, f = fit
+      window.addEventListener("keydown", function (e) {
+        if (e.target && /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
+        if (e.key === "+" || e.key === "=") centerZoom(1.2);
+        else if (e.key === "-") centerZoom(1 / 1.2);
+        else if (e.key === "0") actualSize();
+        else if (e.key === "f" || e.key === "F") fit();
       });
 
       window.addEventListener("message", function (event) {

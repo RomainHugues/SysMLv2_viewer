@@ -41,7 +41,7 @@ const FEATURES = [
   "Render the contents of a SysML v2 package as a Mermaid diagram from the editor (right-click → SysML Diagram).",
   "Five diagram types: flowchart, class, state, sequence and requirement.",
   "In-process parsing with the open-source SysML v2 parser (syside-languageserver); reusable profile libraries in sibling files are resolved automatically.",
-  "Per-panel toolbar: ⟳ Refresh, ⤓ PNG export, and a syntax-error indicator.",
+  "Per-panel toolbar: ⟳ Refresh, ⤓ PNG export, zoom/pan controls (−, 1:1, +, Fit, mouse-wheel zoom, drag-to-pan), and a syntax-error indicator.",
   "Auto-refresh open diagrams when the .sysml file is saved (configurable).",
   "Type-based styling from a JSON style file: colour elements by native SysML type and/or by the SysML type they conform to (hierarchy-followed).",
   "Ready-made Arcadia and NAF v4 styling profiles.",

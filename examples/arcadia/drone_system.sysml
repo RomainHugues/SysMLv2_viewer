@@ -12,6 +12,7 @@ package DroneSystem {
 
     // --- Logical components (blue) ---
     part def FlightController :> LogicalComponent {
+        doc  {"flight controller"}
         part navigation : NavigationUnit;
         part comms : CommsUnit;
     }
