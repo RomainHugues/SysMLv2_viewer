@@ -2,12 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
 import { parseStyleSheet, type StyleSheet } from "./style";
-
-let channel: vscode.OutputChannel | undefined;
-function log(msg: string): void {
-  if (!channel) channel = vscode.window.createOutputChannel("SysML Mermaid");
-  channel.appendLine(msg);
-}
+import { log } from "../log";
 
 /** Walk up from `startDir` to filesystem root, returning each directory. */
 function ancestors(startDir: string): string[] {
@@ -22,15 +17,39 @@ function ancestors(startDir: string): string[] {
   return out;
 }
 
+function readSheet(file: string): StyleSheet | undefined {
+  try {
+    const sheet = parseStyleSheet(JSON.parse(fs.readFileSync(file, "utf8")));
+    log(`loaded style file: ${file} (${sheet.rules.length} rules)`);
+    return sheet;
+  } catch (e: any) {
+    log(`failed to parse ${file}: ${e?.message ?? String(e)}`);
+    void vscode.window.showWarningMessage(
+      `SysML Mermaid: could not load style file: ${e?.message ?? String(e)}`
+    );
+    return undefined;
+  }
+}
+
 /**
- * Load the style sheet referenced by `sysmlMermaid.styleFile`, if set. The path
- * may be absolute, relative to the workspace folder, or relative to any ancestor
- * directory of the source file. Returns undefined if unset; logs diagnostics to
- * the "SysML Mermaid" output channel.
+ * Resolve the active style sheet. Priority:
+ *  1. `explicitPath` (absolute path chosen via the "Select Style File" command,
+ *     stored in globalState) — always wins, independent of workspace/settings.
+ *  2. `sysmlMermaid.styleFile` setting (absolute, or relative to the workspace
+ *     folder or any ancestor of the source file).
+ * Returns undefined when no style is configured. Logs diagnostics.
  */
-export function loadStyleSheet(sourceUri: vscode.Uri): StyleSheet | undefined {
+export function loadStyleSheet(sourceUri: vscode.Uri, explicitPath?: string): StyleSheet | undefined {
+  if (explicitPath && explicitPath.trim()) {
+    if (fs.existsSync(explicitPath)) {
+      log(`style source = selected file: ${explicitPath}`);
+      return readSheet(explicitPath);
+    }
+    log(`selected style file no longer exists: ${explicitPath}`);
+  }
+
   const raw = vscode.workspace.getConfiguration("sysmlMermaid").get<string>("styleFile");
-  log(`styleFile setting = ${raw === undefined ? "(unset)" : JSON.stringify(raw)}`);
+  log(`styleFile setting = ${raw === undefined || raw === null ? "(unset)" : JSON.stringify(raw)}`);
   if (!raw || !raw.trim()) return undefined;
 
   const candidates: string[] = [];
@@ -40,11 +59,7 @@ export function loadStyleSheet(sourceUri: vscode.Uri): StyleSheet | undefined {
     const wsFolder =
       vscode.workspace.getWorkspaceFolder(sourceUri) ?? vscode.workspace.workspaceFolders?.[0];
     if (wsFolder) candidates.push(path.join(wsFolder.uri.fsPath, raw));
-    // Also try the path relative to every ancestor of the source file, so it
-    // resolves even when no workspace folder is open.
-    for (const dir of ancestors(path.dirname(sourceUri.fsPath))) {
-      candidates.push(path.join(dir, raw));
-    }
+    for (const dir of ancestors(path.dirname(sourceUri.fsPath))) candidates.push(path.join(dir, raw));
   }
 
   const file = candidates.find((c) => fs.existsSync(c));
@@ -55,15 +70,5 @@ export function loadStyleSheet(sourceUri: vscode.Uri): StyleSheet | undefined {
     );
     return undefined;
   }
-  try {
-    const sheet = parseStyleSheet(JSON.parse(fs.readFileSync(file, "utf8")));
-    log(`loaded style file: ${file} (${sheet.rules.length} rules)`);
-    return sheet;
-  } catch (e: any) {
-    log(`failed to parse ${file}: ${e?.message ?? String(e)}`);
-    void vscode.window.showWarningMessage(
-      `SysML Mermaid: could not load style file '${raw}': ${e?.message ?? String(e)}`
-    );
-    return undefined;
-  }
+  return readSheet(file);
 }

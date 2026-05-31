@@ -103,6 +103,19 @@ at a JSON file:
 }
 ```
 
+**Two ways to activate a style file:**
+
+1. **Command (recommended, most reliable):** run **SysML Mermaid: Select Style
+   File…** from the Command Palette and pick the JSON. The absolute path is
+   remembered globally (independent of workspace/settings) and open diagrams
+   refresh immediately. **SysML Mermaid: Clear Style File** removes it.
+2. **Setting:** `sysmlMermaid.styleFile` (absolute, or relative to the workspace
+   folder / the `.sysml` file).
+
+Run **SysML Mermaid: Show Log** (Output → "SysML Mermaid") to see which style
+file was loaded and how many style directives were emitted — handy if colours
+don't appear.
+
 - Each rule selects by `nativeType` and/or `type` (string or array). When both
   are given they must both match. Rules are tried in order; the first match wins.
 - `type` matches the whole type hierarchy, so `part def Radio :> LogicalComponent`

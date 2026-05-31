@@ -4,6 +4,9 @@ import { findEnclosingPackage, allPackages, findPackageByQualifiedName } from ".
 import { diagramTypes, type DiagramType, type DiagramConfig } from "./diagrams/registry";
 import { showDiagramPanel, type RefreshResult } from "./webview/panel";
 import { loadStyleSheet } from "./style/load";
+import { log, showLog } from "./log";
+
+const STYLE_PATH_KEY = "sysmlMermaid.selectedStyleFile";
 
 /** Open diagram panels that can be auto-refreshed when their source file is saved. */
 interface OpenDiagram {
@@ -19,6 +22,12 @@ export function activate(context: vscode.ExtensionContext): void {
     );
   }
 
+  context.subscriptions.push(
+    vscode.commands.registerCommand("sysmlMermaid.selectStyleFile", () => selectStyleFile(context)),
+    vscode.commands.registerCommand("sysmlMermaid.clearStyleFile", () => clearStyleFile(context)),
+    vscode.commands.registerCommand("sysmlMermaid.showLog", () => showLog())
+  );
+
   // Auto-refresh open diagrams when their .sysml source is saved (if enabled).
   context.subscriptions.push(
     vscode.workspace.onDidSaveTextDocument((doc) => {
@@ -33,13 +42,44 @@ export function activate(context: vscode.ExtensionContext): void {
   );
 }
 
-function readConfig(sourceUri: vscode.Uri): DiagramConfig {
+function refreshAll(): void {
+  for (const d of openDiagrams) void d.refresh();
+}
+
+async function selectStyleFile(context: vscode.ExtensionContext): Promise<void> {
+  const picked = await vscode.window.showOpenDialog({
+    canSelectMany: false,
+    openLabel: "Use as SysML diagram style",
+    filters: { "Style files": ["json"] },
+  });
+  if (!picked || picked.length === 0) return;
+  const fsPath = picked[0].fsPath;
+  await context.globalState.update(STYLE_PATH_KEY, fsPath);
+  log(`selected style file set to: ${fsPath}`);
+  vscode.window.showInformationMessage(`SysML Mermaid style: ${fsPath}`);
+  refreshAll();
+}
+
+async function clearStyleFile(context: vscode.ExtensionContext): Promise<void> {
+  await context.globalState.update(STYLE_PATH_KEY, undefined);
+  log("selected style file cleared");
+  vscode.window.showInformationMessage("SysML Mermaid: style cleared.");
+  refreshAll();
+}
+
+function readConfig(sourceUri: vscode.Uri, context: vscode.ExtensionContext): DiagramConfig {
   const cfg = vscode.workspace.getConfiguration("sysmlMermaid");
+  const selected = context.globalState.get<string>(STYLE_PATH_KEY);
   return {
     direction: cfg.get<DiagramConfig["direction"]>("flowchart.direction", "TB"),
     theme: cfg.get<string>("theme", "default"),
-    styleSheet: loadStyleSheet(sourceUri),
+    styleSheet: loadStyleSheet(sourceUri, selected),
   };
+}
+
+/** Count Mermaid styling directives in the output (for diagnostics). */
+function countStyleDirectives(mermaid: string): number {
+  return (mermaid.match(/(^|\n)\s*(style |classDef |class .+:::| {2}box )/g) ?? []).length;
 }
 
 async function showDiagram(dt: DiagramType, context: vscode.ExtensionContext): Promise<void> {
@@ -62,7 +102,7 @@ async function showDiagram(dt: DiagramType, context: vscode.ExtensionContext): P
     const pkgName: string = pkg.declaredName ?? "package";
     const pkgQName: string | undefined = pkg.$meta?.qualifiedName;
 
-    const config = readConfig(sourceUri);
+    const config = readConfig(sourceUri, context);
     const mermaid = dt.build(pkg, config);
     if (!mermaid) {
       vscode.window.showInformationMessage(
@@ -70,6 +110,7 @@ async function showDiagram(dt: DiagramType, context: vscode.ExtensionContext): P
       );
       return;
     }
+    log(`${dt.label} '${pkgName}': style sheet ${config.styleSheet ? "active" : "none"}, ${countStyleDirectives(mermaid)} style directive(s) in output`);
 
     // Re-parse the (possibly edited) source and rebuild the same package's diagram.
     const onRefresh = async (): Promise<RefreshResult> => {
@@ -79,9 +120,10 @@ async function showDiagram(dt: DiagramType, context: vscode.ExtensionContext): P
       const target =
         (pkgQName && findPackageByQualifiedName(reparsed, pkgQName)) ?? allPackages(reparsed)[0];
       if (!target) return { error: `Package '${pkgName}' was not found in the file.` };
-      const cfg = readConfig(sourceUri);
+      const cfg = readConfig(sourceUri, context);
       const out = dt.build(target, cfg);
       if (!out) return { error: `No ${dt.label} elements in package '${pkgName}' anymore.` };
+      log(`refresh ${dt.label} '${pkgName}': style ${cfg.styleSheet ? "active" : "none"}, ${countStyleDirectives(out)} style directive(s)`);
       return { mermaid: out, theme: cfg.theme, parseErrors: parserErrorCount(reparsed) };
     };
 

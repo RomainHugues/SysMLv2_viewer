@@ -55,6 +55,21 @@
         "command": "sysmlMermaid.showSequence",
         "title": "Show Sequence Diagram",
         "category": "SysML Mermaid"
+      },
+      {
+        "command": "sysmlMermaid.selectStyleFile",
+        "title": "Select Style File…",
+        "category": "SysML Mermaid"
+      },
+      {
+        "command": "sysmlMermaid.clearStyleFile",
+        "title": "Clear Style File",
+        "category": "SysML Mermaid"
+      },
+      {
+        "command": "sysmlMermaid.showLog",
+        "title": "Show Log",
+        "category": "SysML Mermaid"
       }
     ],
     "submenus": [
