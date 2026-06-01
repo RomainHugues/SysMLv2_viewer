@@ -3,7 +3,7 @@
   "displayName": "Celeris",
   "description": "SysMLv2 Mermaid Viewer",
   "version": "0.0.1",
-  "publisher": "romain-hugues",
+  "publisher": "CelerisViewer",
   "license": "MIT",
   "repository": {
     "type": "git",
