@@ -1,0 +1,71 @@
+PACKAGES: SurveillanceArchitecture
+
+----- FLOWCHART MERMAID -----
+flowchart TB
+  subgraph g0 ["MissionThread"]
+    direction TB
+    n0["sense"]
+    n1["detect"]
+    n2["identify"]
+    n3["engage"]
+    n4["report"]
+    n5["archive"]
+    n6[["sensor"]]
+    n7[["tracker"]]
+    n8[["effector"]]
+    n9[["comms"]]
+    n10[["recorder"]]
+    n0 --> n2
+    n1 --> n2
+    n2 --> n3
+    n2 --> n4
+    n2 --> n5
+    n0 -.-> n6
+    n1 -.-> n6
+    n2 -.-> n7
+    n3 -.-> n8
+    n4 -.-> n9
+    n5 -.-> n10
+  end
+  subgraph chainsLegend ["Functional chains"]
+    direction TB
+    lc0["Archival"]
+    lc1["Engagement"]
+    lc2["Reporting"]
+    lcShared["shared by several chains"]
+  end
+  subgraph kindLegend ["Legend"]
+    direction LR
+    klAction["action"]
+    klPart[["part"]]
+    klAction -.->|"performed by"| klPart
+  end
+  style n0 fill:#e8f1fb,stroke:#2ca02c,stroke-width:4px
+  style n1 fill:#e8f1fb,stroke:#1f77b4,stroke-width:4px
+  style n2 fill:#e8f1fb,stroke:#111111,stroke-width:6px
+  style n3 fill:#e8f1fb,stroke:#1f77b4,stroke-width:4px
+  style n4 fill:#e8f1fb,stroke:#2ca02c,stroke-width:4px
+  style n5 fill:#e8f1fb,stroke:#d62728,stroke-width:4px
+  style n6 fill:#e7f5e9,stroke:#2e9e4f
+  style n7 fill:#e7f5e9,stroke:#2e9e4f
+  style n8 fill:#e7f5e9,stroke:#2e9e4f
+  style n9 fill:#e7f5e9,stroke:#2e9e4f
+  style n10 fill:#e7f5e9,stroke:#2e9e4f
+  style lc0 fill:#ffffff,stroke:#d62728,stroke-width:4px
+  style lc1 fill:#ffffff,stroke:#1f77b4,stroke-width:4px
+  style lc2 fill:#ffffff,stroke:#2ca02c,stroke-width:4px
+  style lcShared fill:#ffffff,stroke:#111111,stroke-width:6px
+  style klAction fill:#e8f1fb,stroke:#1f6fb2
+  style klPart fill:#e7f5e9,stroke:#2e9e4f
+  linkStyle 0 stroke:#2ca02c,stroke-width:3px
+  linkStyle 1 stroke:#1f77b4,stroke-width:3px
+  linkStyle 2 stroke:#1f77b4,stroke-width:3px
+  linkStyle 3 stroke:#2ca02c,stroke-width:3px
+  linkStyle 4 stroke:#d62728,stroke-width:3px
+  linkStyle 5 stroke:#9e9e9e,stroke-width:1.5px
+  linkStyle 6 stroke:#9e9e9e,stroke-width:1.5px
+  linkStyle 7 stroke:#9e9e9e,stroke-width:1.5px
+  linkStyle 8 stroke:#9e9e9e,stroke-width:1.5px
+  linkStyle 9 stroke:#9e9e9e,stroke-width:1.5px
+  linkStyle 10 stroke:#9e9e9e,stroke-width:1.5px
+  linkStyle 11 stroke:#9e9e9e,stroke-width:1.5px

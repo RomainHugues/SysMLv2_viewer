@@ -11,7 +11,8 @@ export type FlowNodeKind =
   | "accept"
   | "send"
   | "start"
-  | "end";
+  | "end"
+  | "part";
 
 import type { StyleProps } from "../style/style";
 
@@ -32,6 +33,11 @@ export interface FlowEdge {
   label?: string;
   /** Functional chains this flow belongs to (both endpoints in the chain). */
   chains?: string[];
+  /**
+   * Kind of edge. Absent (or "flow") is a succession/control flow; "perform" is an
+   * allocation link from an action to the part that performs it (rendered dashed).
+   */
+  kind?: "flow" | "perform";
 }
 
 /** One behaviour (action def / action usage) rendered as a subgraph. */

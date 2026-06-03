@@ -37,6 +37,10 @@ part sensor : Sensor {
 }
 ```
 
+In the flowchart each performer appears as a **green component** node linked to the
+action(s) it performs by a dashed *performed by* edge — actions (blue) and parts
+(green) are colour-coded by default (a style file can override this).
+
 Then right-click in the package → **Celeris → Show Flowchart Diagram**:
 
 - Functions and the flows between them get a **bold border in the chain colour**.

@@ -1,6 +1,6 @@
 import type { SysmlNode } from "../../sysml/parser";
 import type { FlowModel, FlowGroup, FlowNode, FlowEdge, FlowNodeKind } from "../ir";
-import { styleInfo, functionalChains } from "../ast";
+import { styleInfo, functionalChains, performers } from "../ast";
 import { matchStyle, type StyleSheet } from "../../style/style";
 
 // SysML element $type -> flow node kind. Elements not listed are "noise" and are
@@ -111,6 +111,7 @@ function endpointsFromText(succession: SysmlNode): [string?, string?] {
 export function extractFlow(pkg: SysmlNode, styleSheet?: StyleSheet): FlowModel {
   const groups: FlowGroup[] = [];
   const chainsByAction = functionalChains(pkg);
+  const perfs = performers(pkg);
 
   for (const behaviour of topLevelBehaviours(pkg)) {
     const nodes: FlowNode[] = [];
@@ -181,6 +182,17 @@ export function extractFlow(pkg: SysmlNode, styleSheet?: StyleSheet): FlowModel 
           label: enclosingTransitionGuard(el),
           chains: chains.length ? chains : undefined,
         });
+      }
+    }
+
+    // 3) performers: the parts that perform actions of this behaviour (allocation).
+    //    Add each as a node linked to its performed action(s) by a dashed perform edge.
+    for (const perf of perfs) {
+      const performed = perf.actions.filter((qn) => byId.has(qn));
+      if (!performed.length) continue;
+      const partNode = addNode(qnOf(perf.el) ?? nameOf(perf.el), nameOf(perf.el), "part", perf.el);
+      for (const actionId of performed) {
+        edges.push({ source: actionId, target: partNode.id, kind: "perform" });
       }
     }
 

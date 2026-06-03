@@ -132,6 +132,15 @@ Ready-made methodology profiles (reusable stereotype library + colour code + sam
 - **Arcadia** — [examples/arcadia/](examples/arcadia/README.md) (functions green, logical blue, physical yellow, operational orange).
 - **NAF v4** — [examples/naf/](examples/naf/README.md) (colour by grid layer: Concepts purple, Service blue, Logical green, Physical orange).
 
+## Flowchart colour code & performers
+
+Flowcharts carry a **built-in colour code by node kind**, applied even with no style
+file (a style file overrides it): **actions** blue, **control nodes** (decision /
+fork / join) amber, **events** (accept / send) purple, and **performer parts**
+green. When a `part` **`perform`s** an action, it is shown as a green component
+linked to that action by a dashed *performed by* (allocation) edge — so a flowchart
+also shows *which component realises each function*. A legend recalls the code.
+
 ## Functional chains (Capella-style)
 
 Highlight **functional chains** in flowcharts. Model each chain the SysML v2 way —

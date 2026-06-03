@@ -73,13 +73,51 @@ export function functionalChains(pkg: SysmlNode): Map<string, string[]> {
 
 /** Every use case (definition or usage) anywhere under a container. */
 function useCases(container: SysmlNode): SysmlNode[] {
+  return collect(container, (t) => /^UseCase(Definition|Usage)$/.test(t));
+}
+
+/** A performer: a part and the qualified names of the actions it `perform`s. */
+export interface Performer {
+  /** The part element (so style files can colour it by type). */
+  el: SysmlNode;
+  /** Qualified names of the actions this part performs (allocation). */
+  actions: string[];
+}
+
+/**
+ * Performers: the `part`s that `perform` actions — the components realising each
+ * function (SysML allocation). Returns each part with the qualified names of the
+ * actions it performs, resolved via `referencedFeature` so they match flowchart
+ * nodes. `perform`s done by use cases (which define chains, see [[functionalChains]])
+ * are not performers and are excluded.
+ */
+export function performers(pkg: SysmlNode): Performer[] {
+  const out: Performer[] = [];
+  for (const part of collect(pkg, (t) => /^Part(Definition|Usage)$/.test(t))) {
+    const actions: string[] = [];
+    for (const perform of ownedElements(part, (t) => t === "PerformActionUsage")) {
+      let qn: string | undefined;
+      try {
+        qn = perform.$meta?.referencedFeature?.()?.qualifiedName;
+      } catch {
+        qn = undefined;
+      }
+      if (qn && !actions.includes(qn)) actions.push(qn);
+    }
+    if (actions.length) out.push({ el: part, actions });
+  }
+  return out;
+}
+
+/** Every descendant whose $type matches `typeTest`, anywhere under a container. */
+function collect(container: SysmlNode, typeTest: (t: string) => boolean): SysmlNode[] {
   const out: SysmlNode[] = [];
   const seen = new Set<SysmlNode>();
   const walk = (node: SysmlNode): void => {
     for (const child of childNodes(node)) {
       if (seen.has(child)) continue;
       seen.add(child);
-      if (/^UseCase(Definition|Usage)$/.test(child.$type)) out.push(child);
+      if (typeTest(child.$type)) out.push(child);
       walk(child);
     }
   };
