@@ -25,6 +25,7 @@ const MAP = {
   "arcadia/drone_system.sysml": "class",
   "naf/c2_system.sysml": "class",
   "vehicle_requirements.sysml": "requirement",
+  "chains/surveillance.sysml": "flowchart",
 };
 
 const harness = `

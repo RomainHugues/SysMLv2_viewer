@@ -21,6 +21,8 @@ export interface FlowNode {
   label: string;
   kind: FlowNodeKind;
   style?: StyleProps;
+  /** Names of the functional chains this function belongs to (Capella-style). */
+  chains?: string[];
 }
 
 export interface FlowEdge {
@@ -28,6 +30,8 @@ export interface FlowEdge {
   target: string;
   /** Guard / trigger label, e.g. "waterOk". */
   label?: string;
+  /** Functional chains this flow belongs to (both endpoints in the chain). */
+  chains?: string[];
 }
 
 /** One behaviour (action def / action usage) rendered as a subgraph. */

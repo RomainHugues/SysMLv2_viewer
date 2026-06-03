@@ -43,6 +43,50 @@ export function cstText(node: SysmlNode): string {
   return (node?.$cstNode?.text ?? "").replace(/\s+/g, " ").trim();
 }
 
+/**
+ * Functional chains, modelled the Capella way: each chain is a `use case` that
+ * `perform`s the functions (actions) it traverses. Returns a map from an action's
+ * qualified name to the chains (use-case names) performing it — an action
+ * performed by several use cases is the function shared by several chains.
+ * `perform`s done by other elements (e.g. a part that performs an action — its
+ * performer) are ignored: only use cases define chains.
+ */
+export function functionalChains(pkg: SysmlNode): Map<string, string[]> {
+  const byAction = new Map<string, string[]>();
+  for (const uc of useCases(pkg)) {
+    const chain = nameOf(uc);
+    for (const perform of ownedElements(uc, (t) => t === "PerformActionUsage")) {
+      let qn: string | undefined;
+      try {
+        qn = perform.$meta?.referencedFeature?.()?.qualifiedName;
+      } catch {
+        qn = undefined;
+      }
+      if (!qn) continue;
+      const list = byAction.get(qn) ?? [];
+      if (!list.includes(chain)) list.push(chain);
+      byAction.set(qn, list);
+    }
+  }
+  return byAction;
+}
+
+/** Every use case (definition or usage) anywhere under a container. */
+function useCases(container: SysmlNode): SysmlNode[] {
+  const out: SysmlNode[] = [];
+  const seen = new Set<SysmlNode>();
+  const walk = (node: SysmlNode): void => {
+    for (const child of childNodes(node)) {
+      if (seen.has(child)) continue;
+      seen.add(child);
+      if (/^UseCase(Definition|Usage)$/.test(child.$type)) out.push(child);
+      walk(child);
+    }
+  };
+  walk(container);
+  return out;
+}
+
 /** Documentation text of an element (`doc /* ... *​/`), cleaned to one line. */
 export function docOf(node: SysmlNode): string | undefined {
   // the Documentation node is wrapped in an (Owning)Membership under the element

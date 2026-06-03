@@ -21,6 +21,8 @@ const EXAMPLES = [
     blurb: "An <code>action def</code> with a decision node, guarded branches and a loop. Action usages become nodes, successions become edges, and transition guards label the edges. Non-flow elements (attributes, parts) are filtered out." },
   { file: "examples/order_fulfillment.sysml", type: "flowchart", title: "Flowchart — parallel actions (fork / join)",
     blurb: "<code>fork</code> and <code>join</code> control nodes split work into parallel branches and re-synchronize them." },
+  { file: "examples/chains/surveillance.sysml", type: "flowchart", title: "Flowchart — functional chains (Capella-style)",
+    blurb: "Each chain is a <code>use case</code> that <code>perform</code>s its functions; the boxes and flows of a chain get a bold coloured border, and a function shared by several chains (here <code>identify</code>) gets a dark border. A legend lists the chains." },
   { file: "examples/vehicle.sysml", type: "class", title: "Class — structure, inheritance &amp; composition",
     blurb: "Definitions become classes; specializations (<code>:&gt;</code>) are inheritance, typed part usages are compositions with multiplicities, and enumerations list their literals." },
   { file: "examples/traffic_light.sysml", type: "state", title: "State — a traffic-light machine",
@@ -44,6 +46,7 @@ const FEATURES = [
   "Per-panel toolbar: ⟳ Refresh, ⤓ PNG export, zoom/pan controls (−, 1:1, +, Fit, mouse-wheel zoom, drag-to-pan), and a syntax-error indicator.",
   "Auto-refresh open diagrams when the .sysml file is saved (configurable).",
   "Type-based styling from a JSON style file: colour elements by native SysML type and/or by the SysML type they conform to (hierarchy-followed).",
+  "Capella-style functional chains: model each chain as a use case that performs its functions to highlight the chain (and its flows) with bold coloured borders, with shared functions marked.",
   "Ready-made Arcadia and NAF v4 styling profiles.",
   "Open several diagrams at once, one per panel.",
 ];

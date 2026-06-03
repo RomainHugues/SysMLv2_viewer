@@ -1,6 +1,6 @@
 import type { SysmlNode } from "../../sysml/parser";
 import type { FlowModel, FlowGroup, FlowNode, FlowEdge, FlowNodeKind } from "../ir";
-import { styleInfo } from "../ast";
+import { styleInfo, functionalChains } from "../ast";
 import { matchStyle, type StyleSheet } from "../../style/style";
 
 // SysML element $type -> flow node kind. Elements not listed are "noise" and are
@@ -110,6 +110,7 @@ function endpointsFromText(succession: SysmlNode): [string?, string?] {
 
 export function extractFlow(pkg: SysmlNode, styleSheet?: StyleSheet): FlowModel {
   const groups: FlowGroup[] = [];
+  const chainsByAction = functionalChains(pkg);
 
   for (const behaviour of topLevelBehaviours(pkg)) {
     const nodes: FlowNode[] = [];
@@ -120,7 +121,11 @@ export function extractFlow(pkg: SysmlNode, styleSheet?: StyleSheet): FlowModel 
       let node = byId.get(id);
       if (!node) {
         node = { id, label, kind };
-        if (el) node.style = matchStyle(styleSheet, styleInfo(el));
+        if (el) {
+          node.style = matchStyle(styleSheet, styleInfo(el));
+          const ch = chainsByAction.get(qnOf(el) ?? "");
+          if (ch?.length) node.chains = ch.slice();
+        }
         nodes.push(node);
         byId.set(id, node);
         byName.set(label, node);
@@ -166,7 +171,16 @@ export function extractFlow(pkg: SysmlNode, styleSheet?: StyleSheet): FlowModel 
       const source = resolve(srcId, srcText);
       const target = resolve(tgtId, tgtText);
       if (source && target) {
-        edges.push({ source, target, label: enclosingTransitionGuard(el) });
+        // an edge belongs to a chain when both endpoints are in that chain
+        const sc = byId.get(source)?.chains;
+        const tc = byId.get(target)?.chains;
+        const chains = sc && tc ? sc.filter((c) => tc.includes(c)) : [];
+        edges.push({
+          source,
+          target,
+          label: enclosingTransitionGuard(el),
+          chains: chains.length ? chains : undefined,
+        });
       }
     }
 

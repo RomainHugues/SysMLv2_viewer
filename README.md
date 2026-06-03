@@ -132,6 +132,14 @@ Ready-made methodology profiles (reusable stereotype library + colour code + sam
 - **Arcadia** — [examples/arcadia/](examples/arcadia/README.md) (functions green, logical blue, physical yellow, operational orange).
 - **NAF v4** — [examples/naf/](examples/naf/README.md) (colour by grid layer: Concepts purple, Service blue, Logical green, Physical orange).
 
+## Functional chains (Capella-style)
+
+Highlight **functional chains** in flowcharts. Model each chain the SysML v2 way —
+as a `use case` that `perform`s the functions it traverses (with `part` performers
+that realise them); the flowchart then draws each chain's functions and flows with
+a bold coloured border, marks functions shared by several chains with a dark
+border, and adds a legend. See [examples/chains/](examples/chains/README.md).
+
 ## Manual
 
 A PDF user manual (features, changelog, and every example with its

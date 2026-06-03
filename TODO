@@ -1,9 +1,10 @@
 [x] Complete NAF
 [x] Complete Arcadia
 [x] Requirement Diagram
-[] Zoom
-[] Functional Chain
+[x] Zoom
+[x] Functional Chain display
 [] Breakdown
+[] Ports
 [] Actions
 [] Context from SysMLv2
 [] Context from NAFv4
