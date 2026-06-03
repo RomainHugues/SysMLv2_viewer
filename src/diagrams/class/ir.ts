@@ -14,6 +14,7 @@ export interface ClassNode {
   members: ClassMember[];
   literals: string[]; // enumeration values
   external?: boolean; // referenced but defined outside the package
+  isDefinition?: boolean; // the box is a SysML definition (def), not a usage/instance
   style?: StyleProps;
   doc?: string; // documentation text shown inside the box
 }

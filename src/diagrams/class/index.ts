@@ -1,5 +1,5 @@
 import type { DiagramType } from "../registry";
-import { extractClass } from "./extract";
+import { extractClass, filterClassModel } from "./extract";
 import { classToMermaid } from "./mermaid";
 
 export const classDiagram: DiagramType = {
@@ -7,7 +7,7 @@ export const classDiagram: DiagramType = {
   commandId: "celeris.showClass",
   label: "Class",
   build(pkg, config) {
-    const model = extractClass(pkg, config.styleSheet);
+    const model = filterClassModel(extractClass(pkg, config.styleSheet), config);
     if (model.classes.length === 0) return null;
     return classToMermaid(model);
   },

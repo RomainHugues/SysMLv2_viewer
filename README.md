@@ -80,6 +80,11 @@ size), **+**, **⤢ Fit** (auto-fit to the window). You can also zoom with the
 mouse wheel (toward the cursor), drag to pan, and use the keys `+` / `-` / `0`
 (1:1) / `f` (fit).
 
+Two **view toggles** — **Defs** and **Inherited** — declutter the class and
+requirement diagrams: **Defs** hides the definition boxes, **Inherited** hides
+the inheritance edges and the (usually imported) supertypes they point to. Each
+toggle is per-panel and persists across refreshes.
+
 ## Settings
 
 - `celeris.flowchart.direction` — `TB` | `LR` | `BT` | `RL`

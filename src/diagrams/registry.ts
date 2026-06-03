@@ -11,6 +11,10 @@ export interface DiagramConfig {
   theme: string;
   /** Optional style sheet applied to elements by native type / SysML type. */
   styleSheet?: StyleSheet;
+  /** Hide definition boxes (class / requirement views). Toggled per panel. */
+  hideDefinitions?: boolean;
+  /** Hide inheritance edges and their (imported) supertypes. Toggled per panel. */
+  hideInheritance?: boolean;
 }
 
 export interface DiagramType {

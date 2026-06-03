@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import { parseText } from "./sysml/parser";
 import { findEnclosingPackage, allPackages, findPackageByQualifiedName } from "./sysml/packageAtCursor";
 import { diagramTypes, type DiagramType, type DiagramConfig } from "./diagrams/registry";
-import { showDiagramPanel, type RefreshResult } from "./webview/panel";
+import { showDiagramPanel, type RefreshResult, type ViewOptions } from "./webview/panel";
 import { loadStyleSheet } from "./style/load";
 import { log, showLog } from "./log";
 
@@ -112,15 +112,16 @@ async function showDiagram(dt: DiagramType, context: vscode.ExtensionContext): P
     }
     log(`${dt.label} '${pkgName}': style sheet ${config.styleSheet ? "active" : "none"}, ${countStyleDirectives(mermaid)} style directive(s) in output`);
 
-    // Re-parse the (possibly edited) source and rebuild the same package's diagram.
-    const onRefresh = async (): Promise<RefreshResult> => {
+    // Re-parse the (possibly edited) source and rebuild the same package's diagram,
+    // applying the panel's current view toggles (hide definitions / inherited types).
+    const onRefresh = async (view?: ViewOptions): Promise<RefreshResult> => {
       const doc = await openSource(sourceUri);
       if (!doc) return { error: "Source file is no longer available." };
       const reparsed = (await parseText(sourceUri.fsPath, doc.getText())).document;
       const target =
         (pkgQName && findPackageByQualifiedName(reparsed, pkgQName)) ?? allPackages(reparsed)[0];
       if (!target) return { error: `Package '${pkgName}' was not found in the file.` };
-      const cfg = readConfig(sourceUri, context);
+      const cfg = { ...readConfig(sourceUri, context), ...(view ?? {}) };
       const out = dt.build(target, cfg);
       if (!out) return { error: `No ${dt.label} elements in package '${pkgName}' anymore.` };
       log(`refresh ${dt.label} '${pkgName}': style ${cfg.styleSheet ? "active" : "none"}, ${countStyleDirectives(out)} style directive(s)`);

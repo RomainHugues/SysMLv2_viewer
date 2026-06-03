@@ -5,6 +5,12 @@ export type RefreshResult =
   | { mermaid: string; theme: string; parseErrors?: number }
   | { error: string };
 
+/** Per-panel view toggles, sent from the toolbar buttons and reused on every refresh. */
+export interface ViewOptions {
+  hideDefinitions?: boolean;
+  hideInheritance?: boolean;
+}
+
 export interface DiagramPanelOptions {
   title: string;
   /** Mermaid diagram source text. */
@@ -14,8 +20,8 @@ export interface DiagramPanelOptions {
   /** Number of parser errors in the source at open time. */
   parseErrors?: number;
   context: vscode.ExtensionContext;
-  /** Re-parse the source and rebuild the diagram when the user clicks Refresh. */
-  onRefresh: () => Promise<RefreshResult>;
+  /** Re-parse the source and rebuild the diagram, honouring the current view toggles. */
+  onRefresh: (view?: ViewOptions) => Promise<RefreshResult>;
 }
 
 export interface ShownPanel {
@@ -44,11 +50,14 @@ export function showDiagramPanel(opts: DiagramPanelOptions): ShownPanel {
   );
   panel.webview.html = renderHtml(panel.webview, mediaRoot, opts);
 
-  const refresh = async (): Promise<void> => {
+  // Remember the latest view toggles so save-triggered refreshes keep them.
+  let lastView: ViewOptions | undefined;
+  const refresh = async (view?: ViewOptions): Promise<void> => {
+    if (view) lastView = view;
     panel.webview.postMessage({ type: "busy" });
     let result: RefreshResult;
     try {
-      result = await opts.onRefresh();
+      result = await opts.onRefresh(lastView);
     } catch (e: any) {
       result = { error: e?.message ?? String(e) };
     }
@@ -65,7 +74,7 @@ export function showDiagramPanel(opts: DiagramPanelOptions): ShownPanel {
   };
 
   panel.webview.onDidReceiveMessage((msg) => {
-    if (msg?.type === "refresh") void refresh();
+    if (msg?.type === "refresh") void refresh(msg.view as ViewOptions | undefined);
     else if (msg?.type === "export") void savePng(msg.dataUrl, opts.title);
   });
 
@@ -135,6 +144,7 @@ function renderHtml(webview: vscode.Webview, mediaRoot: vscode.Uri, opts: Diagra
     #toolbar { flex: 0 0 auto; display: flex; align-items: center; gap: 8px;
       padding: 6px 12px; background: #f3f3f3; border-bottom: 1px solid #ddd; }
     #toolbar button { font: inherit; padding: 3px 9px; cursor: pointer; }
+    #toolbar button.toggle.active { background: #cfe3ff; border-color: #6aa3e0; font-weight: 600; }
     #toolbar .sep { width: 1px; align-self: stretch; background: #ddd; }
     #zoom { color: #666; font-size: 12px; min-width: 44px; text-align: center; }
     #status { color: #666; font-size: 12px; }
@@ -162,6 +172,9 @@ function renderHtml(webview: vscode.Webview, mediaRoot: vscode.Uri, opts: Diagra
     <button id="zoomin" title="Zoom in">+</button>
     <button id="fit" title="Fit to window (auto)">⤢ Fit</button>
     <span id="zoom">100%</span>
+    <span class="sep"></span>
+    <button id="toggleDefs" class="toggle" title="Hide/show definition boxes (class &amp; requirement views)">Defs</button>
+    <button id="toggleInh" class="toggle" title="Hide/show inherited types — inheritance edges &amp; supertypes (class &amp; requirement views)">Inherited</button>
     <span id="status"></span>
     <span id="warning" title="The file has syntax errors; some elements may be missing from the diagram."></span>
   </div>
@@ -184,6 +197,12 @@ function renderHtml(webview: vscode.Webview, mediaRoot: vscode.Uri, opts: Diagra
       const warningEl = document.getElementById("warning");
       const refreshBtn = document.getElementById("refresh");
       const exportBtn = document.getElementById("export");
+      const toggleDefsBtn = document.getElementById("toggleDefs");
+      const toggleInhBtn = document.getElementById("toggleInh");
+      // Per-panel view toggles, persisted via webview state so they survive an
+      // iframe reload (e.g. "Developer: Reload Webviews") and stay the source of truth.
+      const persistedView = vscode.getState() || {};
+      let hideDefs = !!persistedView.hideDefinitions, hideInh = !!persistedView.hideInheritance;
       let seq = 0;
       let lastSvg = null;
 
@@ -313,17 +332,34 @@ function renderHtml(webview: vscode.Webview, mediaRoot: vscode.Uri, opts: Diagra
       function setBusy(busy, text) {
         refreshBtn.disabled = busy;
         exportBtn.disabled = busy || !lastSvg;
+        toggleDefsBtn.disabled = busy; // avoid concurrent refreshes from rapid toggling
+        toggleInhBtn.disabled = busy;
         statusEl.textContent = text || "";
       }
 
-      refreshBtn.addEventListener("click", function () {
+      function sendRefresh() {
+        vscode.setState({ hideDefinitions: hideDefs, hideInheritance: hideInh });
         setBusy(true, "Refreshing…");
-        vscode.postMessage({ type: "refresh" });
-      });
+        vscode.postMessage({ type: "refresh", view: { hideDefinitions: hideDefs, hideInheritance: hideInh } });
+      }
+
+      refreshBtn.addEventListener("click", sendRefresh);
 
       exportBtn.addEventListener("click", function () {
         setBusy(true, "Exporting…");
         exportPng();
+      });
+
+      // View filter toggles (effective on class & requirement diagrams).
+      toggleDefsBtn.addEventListener("click", function () {
+        hideDefs = !hideDefs;
+        toggleDefsBtn.classList.toggle("active", hideDefs);
+        sendRefresh();
+      });
+      toggleInhBtn.addEventListener("click", function () {
+        hideInh = !hideInh;
+        toggleInhBtn.classList.toggle("active", hideInh);
+        sendRefresh();
       });
 
       // --- zoom / pan controls ---
@@ -378,9 +414,16 @@ function renderHtml(webview: vscode.Webview, mediaRoot: vscode.Uri, opts: Diagra
         }
       });
 
+      // Reflect any restored toggle state on the buttons.
+      toggleDefsBtn.classList.toggle("active", hideDefs);
+      toggleInhBtn.classList.toggle("active", hideInh);
+
       const initial = ${payload};
       render(initial.definition, initial.theme);
       showWarning(initial.parseErrors || 0);
+      // The embedded payload is the unfiltered open-time diagram; if a filter was
+      // restored (iframe reload), re-request so the view matches the active buttons.
+      if (hideDefs || hideInh) sendRefresh();
     })();
   </script>
 </body>

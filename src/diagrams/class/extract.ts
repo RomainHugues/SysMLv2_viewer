@@ -139,6 +139,7 @@ export function extractClass(pkg: SysmlNode, styleSheet?: StyleSheet): ClassMode
       stereotype: DEF_KINDS[def.$type] ?? undefined,
       members: [],
       literals: [],
+      isDefinition: true,
       style: matchStyle(styleSheet, styleInfo(def)),
       doc: docOf(def),
     };
@@ -178,6 +179,43 @@ export function extractClass(pkg: SysmlNode, styleSheet?: StyleSheet): ClassMode
       if (targetId) relations.push({ source: node.id, target: targetId, kind: "inheritance" });
     }
   }
+
+  return { classes, relations };
+}
+
+/**
+ * Optionally hide, from a class/requirement model:
+ *  - `hideInheritance`: the inheritance edges and the (usually imported) supertypes
+ *    they point to — i.e. the "inherited types". External boxes left orphaned are dropped.
+ *  - `hideDefinitions`: the definition boxes themselves (kept usages/instances only).
+ * Shared by the class and requirement diagrams (same IR).
+ */
+export function filterClassModel(
+  model: ClassModel,
+  opts: { hideDefinitions?: boolean; hideInheritance?: boolean }
+): ClassModel {
+  if (!opts.hideDefinitions && !opts.hideInheritance) return model;
+
+  let classes = model.classes;
+  let relations = model.relations;
+
+  if (opts.hideInheritance) {
+    relations = relations.filter((r) => r.kind !== "inheritance");
+  }
+  if (opts.hideDefinitions) {
+    const removed = new Set(classes.filter((c) => c.isDefinition).map((c) => c.id));
+    classes = classes.filter((c) => !removed.has(c.id));
+    relations = relations.filter((r) => !removed.has(r.source) && !removed.has(r.target));
+  }
+
+  // Drop external (imported) boxes left unreferenced — e.g. supertypes orphaned by
+  // hiding inheritance. Local boxes are kept even when isolated (they are content).
+  const referenced = new Set<string>();
+  for (const r of relations) {
+    referenced.add(r.source);
+    referenced.add(r.target);
+  }
+  classes = classes.filter((c) => !c.external || referenced.has(c.id));
 
   return { classes, relations };
 }

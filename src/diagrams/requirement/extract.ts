@@ -54,7 +54,7 @@ export function extractRequirements(pkg: SysmlNode, styleSheet?: StyleSheet): Cl
   const addNode = (id: string, name: string, stereotype: string | undefined, node?: SysmlNode): ClassNode => {
     let c = byId.get(id);
     if (!c) {
-      c = { id, name, stereotype, members: [], literals: [] };
+      c = { id, name, stereotype, members: [], literals: [], isDefinition: node?.$type?.endsWith("Definition") };
       if (node) c.style = matchStyle(styleSheet, styleInfo(node));
       classes.push(c);
       byId.set(id, c);
