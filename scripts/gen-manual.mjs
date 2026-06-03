@@ -50,6 +50,7 @@ const FEATURES = [
   "Performers in flowcharts: a part that performs an action is shown as a component linked to it by a dashed allocation edge (which component realises each function).",
   "Capella-style functional chains: model each chain as a use case that performs its functions to highlight the chain (and its flows) with bold coloured borders, with shared functions marked.",
   "Ready-made Arcadia and NAF v4 styling profiles.",
+  "View toggles (Defs, Inherited) to declutter the class and requirement diagrams: hide definition boxes and/or inherited types (inheritance edges and imported supertypes), per panel.",
   "Open several diagrams at once, one per panel.",
 ];
 
@@ -58,6 +59,8 @@ const CHANGELOG = [
   ["Class / State / Sequence", "Three further diagram types sharing the parser and rendering infrastructure."],
   ["Auto-refresh & PNG export", "Live refresh on save and one-click PNG export of any diagram."],
   ["Type-based styling", "JSON style files, with reusable Arcadia and NAF v4 profiles."],
+  ["Functional chains & performers", "Capella-style chains (use case + perform) and the parts that perform each function, in flowcharts; built-in colour code by node kind."],
+  ["View toggles", "Hide definitions / inherited types in the class and requirement diagrams (per-panel toolbar)."],
 ];
 
 // --- 1. compute mermaid for each example via the real pipeline ----------------
