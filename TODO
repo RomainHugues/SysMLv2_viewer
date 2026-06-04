@@ -3,10 +3,11 @@
 [x] Requirement Diagram
 [x] Zoom
 [x] Functional Chain display
-[] Breakdown
-[] Ports
+[x] Breakdown
+[x] Ports
 [x] Perform
-[] Context from SysMLv2
+[] Attributs
+[] Doc
 [] Context from NAFv4
 [] Context from Arcadia
-[] Remove references to :>
+[x] Remove references to :>
