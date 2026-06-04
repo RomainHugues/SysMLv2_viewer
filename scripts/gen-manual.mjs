@@ -31,6 +31,10 @@ const EXAMPLES = [
     blurb: "Part usages become participants and directed <code>flow</code>s become ordered messages between them." },
   { file: "examples/vehicle_requirements.sysml", type: "requirement", title: "Requirement — derive, decompose &amp; satisfy",
     blurb: "Requirement definitions become «requirement» boxes. Specialization is derivation, nested requirement usages are decomposition, and a part that <code>satisfy</code>s a requirement is linked with a satisfy dependency. The subject is shown inside the box." },
+  { file: "examples/breakdown/function_breakdown.sysml", type: "class", title: "Class as BDD — function breakdown (FBS)",
+    blurb: "The class diagram is the SysML Block Definition Diagram. Each function is an <code>action def</code> (the «action» stereotype) and a function decomposed into sub-functions via typed <code>action</code> usages becomes composition — giving a top-down function breakdown tree." },
+  { file: "examples/breakdown/component_breakdown.sysml", type: "class", title: "Class as BDD — component breakdown (PBS)",
+    blurb: "Same BDD, for structure: each component is a <code>part def</code> and typed <code>part</code> usages are composition, giving a top-down component breakdown tree." },
   { file: "examples/arcadia/drone_system.sysml", type: "class", title: "Styling — Arcadia colour code",
     style: "examples/arcadia/arcadia.style.json",
     blurb: "With the Arcadia style file selected, components are coloured by their Arcadia type, following the specialization hierarchy: operational entities orange, logical components blue, physical nodes yellow." },
@@ -42,6 +46,7 @@ const EXAMPLES = [
 const FEATURES = [
   "Render the contents of a SysML v2 package as a Mermaid diagram from the editor (right-click → Celeris).",
   "Five diagram types: flowchart, class, state, sequence and requirement.",
+  "The class diagram doubles as a Block Definition Diagram (BDD): function breakdowns (action def) and component breakdowns (part def) render as composition trees.",
   "In-process parsing with the open-source SysML v2 parser (syside-languageserver); reusable profile libraries in sibling files are resolved automatically.",
   "Per-panel toolbar: ⟳ Refresh, ⤓ PNG export, zoom/pan controls (−, 1:1, +, Fit, mouse-wheel zoom, drag-to-pan), and a syntax-error indicator.",
   "Auto-refresh open diagrams when the .sysml file is saved (configurable).",

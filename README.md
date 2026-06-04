@@ -8,7 +8,10 @@ with irrelevant elements filtered out. Several diagrams can be open at once
 
 Diagram types: **flowchart**, **class**, **state**, **sequence** and
 **requirement** (all implemented). See [examples/](examples/README.md) for a
-sample model per type.
+sample model per type. The **class** diagram doubles as a SysML **Block
+Definition Diagram (BDD)**, so it also renders **breakdown structures** —
+function (`action def`) and component (`part def`) decomposition trees via
+composition. See [examples/breakdown/](examples/breakdown/README.md).
 
 ## How it works
 

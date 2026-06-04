@@ -7,6 +7,7 @@ import { matchStyle, type StyleSheet } from "../../style/style";
 const DEF_KINDS: Record<string, string | null> = {
   PartDefinition: null,
   ItemDefinition: "item",
+  ActionDefinition: "action",
   AttributeDefinition: "attribute",
   EnumerationDefinition: "enumeration",
   PortDefinition: "port",
@@ -14,7 +15,10 @@ const DEF_KINDS: Record<string, string | null> = {
   ConnectionDefinition: "connection",
 };
 
-const COMPOSITION_USAGES = new Set(["PartUsage", "ItemUsage", "PortUsage"]);
+// Usages that decompose a definition (whole-part) -> composition edge. ActionUsage
+// makes the class diagram a Block Definition Diagram: it renders function breakdowns
+// (action def decomposed into sub-actions) as well as component breakdowns.
+const COMPOSITION_USAGES = new Set(["PartUsage", "ItemUsage", "PortUsage", "ActionUsage"]);
 const ASSOCIATION_USAGES = new Set(["ReferenceUsage"]);
 
 function childNodes(node: SysmlNode): SysmlNode[] {

@@ -26,6 +26,8 @@ const MAP = {
   "naf/c2_system.sysml": "class",
   "vehicle_requirements.sysml": "requirement",
   "chains/surveillance.sysml": "flowchart",
+  "breakdown/function_breakdown.sysml": "class",
+  "breakdown/component_breakdown.sysml": "class",
 };
 
 const harness = `
