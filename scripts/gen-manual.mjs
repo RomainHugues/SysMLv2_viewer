@@ -41,12 +41,17 @@ const EXAMPLES = [
   { file: "examples/naf/c2_system.sysml", type: "class", title: "Styling — NAF v4 by grid layer",
     style: "examples/naf/naf.style.json",
     blurb: "With the NAF style file selected, elements are coloured by NAF grid layer: Concepts purple, Service blue, Logical green, Physical/Resource orange." },
+  { file: "examples/interconnection/avionics_power.sysml", type: "interconnection", title: "Interconnection (IBD) — structure",
+    blurb: "The SysML Internal Block Diagram. Each <code>part</code> is a block carrying its <code>port</code>s; a <code>connect</code> is a thin line and a typed <code>interface</code> a bold (purple) connector between ports." },
+  { file: "examples/interconnection/signal_chain.sysml", type: "interconnection", title: "Interconnection (IBD) — data flow",
+    blurb: "Same view for behaviour: each <code>action</code> is a block carrying its <code>in</code>/<code>out</code> <code>ref</code> parameters (▸ marks the direction), and an item <code>flow</code> is a directed (green) connector labelled with the flowing item." },
 ];
 
 const FEATURES = [
   "Render the contents of a SysML v2 package as a Mermaid diagram from the editor (right-click → Celeris).",
-  "Five diagram types: flowchart, class, state, sequence and requirement.",
+  "Six diagram types: flowchart, class, state, sequence, requirement and interconnection (IBD).",
   "The class diagram doubles as a Block Definition Diagram (BDD): function breakdowns (action def) and component breakdowns (part def) render as composition trees.",
+  "Interconnection (Internal Block Diagram): parts with their ports wired by connect/interface, and actions with in/out ref parameters wired by item flows.",
   "In-process parsing with the open-source SysML v2 parser (syside-languageserver); reusable profile libraries in sibling files are resolved automatically.",
   "Per-panel toolbar: ⟳ Refresh, ⤓ PNG export, zoom/pan controls (−, 1:1, +, Fit, mouse-wheel zoom, drag-to-pan), and a syntax-error indicator.",
   "Auto-refresh open diagrams when the .sysml file is saved (configurable).",

@@ -62,6 +62,11 @@
         "category": "Celeris"
       },
       {
+        "command": "celeris.showInterconnection",
+        "title": "Show Interconnection Diagram",
+        "category": "Celeris"
+      },
+      {
         "command": "celeris.selectStyleFile",
         "title": "Select Style File…",
         "category": "Celeris"
@@ -110,6 +115,10 @@
         },
         {
           "command": "celeris.showRequirement",
+          "when": "resourceLangId == sysml"
+        },
+        {
+          "command": "celeris.showInterconnection",
           "when": "resourceLangId == sysml"
         }
       ]
@@ -161,6 +170,8 @@
     "vendor": "node scripts/build-vendor.mjs",
     "notices": "node scripts/gen-notices.mjs",
     "manual": "node scripts/gen-manual.mjs",
+    "stress": "node scripts/gen-stress-examples.mjs",
+    "load-test": "node scripts/load-test.mjs",
     "test": "vitest run",
     "package": "vsce package"
   },

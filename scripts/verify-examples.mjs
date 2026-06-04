@@ -28,6 +28,8 @@ const MAP = {
   "chains/surveillance.sysml": "flowchart",
   "breakdown/function_breakdown.sysml": "class",
   "breakdown/component_breakdown.sysml": "class",
+  "interconnection/avionics_power.sysml": "interconnection",
+  "interconnection/signal_chain.sysml": "interconnection",
 };
 
 const harness = `

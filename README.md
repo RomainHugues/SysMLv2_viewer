@@ -6,12 +6,19 @@ right-click, and pick a diagram type — the package is shown in a webview panel
 with irrelevant elements filtered out. Several diagrams can be open at once
 (one per panel).
 
-Diagram types: **flowchart**, **class**, **state**, **sequence** and
-**requirement** (all implemented). See [examples/](examples/README.md) for a
-sample model per type. The **class** diagram doubles as a SysML **Block
-Definition Diagram (BDD)**, so it also renders **breakdown structures** —
-function (`action def`) and component (`part def`) decomposition trees via
-composition. See [examples/breakdown/](examples/breakdown/README.md).
+Diagram types: **flowchart**, **class**, **state**, **sequence**,
+**requirement** and **interconnection** (all implemented). See
+[examples/](examples/README.md) for a sample model per type.
+
+The **class** diagram doubles as a SysML **Block Definition Diagram (BDD)**, so it
+also renders **breakdown structures** — function (`action def`) and component
+(`part def`) decomposition trees via composition. See
+[examples/breakdown/](examples/breakdown/README.md).
+
+The **interconnection** diagram is the SysML **Internal Block Diagram (IBD)**: it
+wires the inside of a block — **parts** through their **ports** (`connect` /
+`interface`) and **functions** through their **in/out** parameters (item `flow`).
+See [examples/interconnection/](examples/interconnection/README.md).
 
 ## How it works
 
