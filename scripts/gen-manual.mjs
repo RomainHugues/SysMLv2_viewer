@@ -71,6 +71,8 @@ const CHANGELOG = [
   ["Type-based styling", "JSON style files, with reusable Arcadia and NAF v4 profiles."],
   ["Functional chains & performers", "Capella-style chains (use case + perform) and the parts that perform each function, in flowcharts; built-in colour code by node kind."],
   ["View toggles", "Hide definitions / inherited types in the class and requirement diagrams (per-panel toolbar)."],
+  ["Breakdown (BDD)", "The class diagram doubles as a Block Definition Diagram: function and component breakdown trees via composition."],
+  ["Interconnection (IBD)", "A sixth view: parts wired by ports/connect/interface, and functions wired by in/out parameters and item flows."],
 ];
 
 // --- 1. compute mermaid for each example via the real pipeline ----------------

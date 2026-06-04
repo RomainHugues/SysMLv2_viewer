@@ -2,6 +2,16 @@
 
 All notable changes to **Celeris** are documented here.
 
+## 0.2.0
+
+### Added
+- **Interconnection diagram (IBD)** — a sixth view showing a block's internal
+  wiring: **parts** through their **ports** (`connect` / `interface`) and
+  **functions** through their **in/out** `ref` parameters and item **`flow`**s.
+- **Breakdown structures** — the **class** diagram now doubles as a SysML **Block
+  Definition Diagram (BDD)**: function (`action def`) and component (`part def`)
+  decomposition trees render as composition trees.
+
 ## 0.1.0
 
 ### Added
