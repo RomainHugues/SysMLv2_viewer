@@ -2,6 +2,15 @@
 
 All notable changes to **Celeris** are documented here.
 
+## 0.4.0
+
+### Added
+- **Tabular views** — display elements as a **table** (right-click → Celeris →
+  **Show Table…**), with **CSV export**. Built-in presets: **Requirements**,
+  **Interfaces** (each connection with its ports, parts and the item flows that
+  traverse it) and **Elements** (any type). Define your own tables (a row `select`
+  + `columns`) in a `.table.json` pointed to by the `celeris.tableConfig` setting.
+
 ## 0.3.0
 
 ### Added
