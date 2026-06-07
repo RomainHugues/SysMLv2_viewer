@@ -1,0 +1,24 @@
+{
+  "tables": [
+    {
+      "id": "logical-components",
+      "title": "Logical components",
+      "select": { "conformsTo": "LogicalComponent" },
+      "columns": [
+        { "header": "Name", "value": "name" },
+        { "header": "Kind", "value": "kind" },
+        { "header": "Type", "value": "type" },
+        { "header": "Doc", "value": "doc" }
+      ]
+    },
+    {
+      "id": "functions",
+      "title": "Functions",
+      "select": { "type": ["ActionDefinition", "ActionUsage"] },
+      "columns": [
+        { "header": "Function", "value": "name" },
+        { "header": "Kind", "value": "kind" }
+      ]
+    }
+  ]
+}

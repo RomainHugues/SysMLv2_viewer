@@ -26,6 +26,13 @@ Physical, from each element's conformed profile type) with **realization**
 `dependency` links drawn between levels. See
 [examples/realization/](examples/realization/README.md).
 
+**Tabular views** — display elements as a **table** (right-click → Celeris → **Show
+Table…**), with **CSV export**. Built-in presets cover **requirements**,
+**interfaces** (each connection with its ports, parts and the item flows that
+traverse it) and **elements** (any type). Define your own — a row `select` + columns
+— in a `.table.json` pointed to by `celeris.tableConfig`. See
+[examples/tables/](examples/tables/README.md).
+
 ## How it works
 
 - **Parsing** reuses the open-source SysML v2 parser

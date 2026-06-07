@@ -53,6 +53,7 @@ const FEATURES = [
   "Render the contents of a SysML v2 package as a Mermaid diagram from the editor (right-click → Celeris).",
   "Seven diagram types: flowchart, class, state, sequence, requirement, interconnection (IBD) and realization.",
   "Realization view: cross-level traceability — elements placed in engineering-level lanes (Arcadia/NAF) with realization dependencies drawn between levels.",
+  "Tabular views: requirements, interfaces (ports / parts / flows) and any element type as a table, configurable via a .table.json (select + columns) plus built-in presets, with CSV export.",
   "The class diagram doubles as a Block Definition Diagram (BDD): function breakdowns (action def) and component breakdowns (part def) render as composition trees.",
   "Interconnection (Internal Block Diagram): parts with their ports wired by connect/interface, and actions with in/out ref parameters wired by item flows.",
   "In-process parsing with the open-source SysML v2 parser (syside-languageserver); reusable profile libraries in sibling files are resolved automatically.",
@@ -77,6 +78,7 @@ const CHANGELOG = [
   ["Breakdown (BDD)", "The class diagram doubles as a Block Definition Diagram: function and component breakdown trees via composition."],
   ["Interconnection (IBD)", "A sixth view: parts wired by ports/connect/interface, and functions wired by in/out parameters and item flows."],
   ["Realization", "A seventh view: cross-level traceability — engineering-level lanes (Arcadia/NAF) with realization dependencies between them."],
+  ["Tabular views", "Requirements / interfaces / any-element tables (HTML) with CSV export, configurable via a .table.json plus built-in presets."],
 ];
 
 // --- 1. compute mermaid for each example via the real pipeline ----------------

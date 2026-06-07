@@ -72,6 +72,11 @@
         "category": "Celeris"
       },
       {
+        "command": "celeris.showTable",
+        "title": "Show Table…",
+        "category": "Celeris"
+      },
+      {
         "command": "celeris.selectStyleFile",
         "title": "Select Style File…",
         "category": "Celeris"
@@ -129,6 +134,10 @@
         {
           "command": "celeris.showRealization",
           "when": "resourceLangId == sysml"
+        },
+        {
+          "command": "celeris.showTable",
+          "when": "resourceLangId == sysml"
         }
       ]
     },
@@ -166,6 +175,11 @@
           "type": "string",
           "default": null,
           "markdownDescription": "Path to a JSON style file that colors diagram elements by native SysML type and/or the SysML type they conform to. Absolute, or relative to the workspace folder or the .sysml file. See `examples/arcadia/arcadia.style.json`."
+        },
+        "celeris.tableConfig": {
+          "type": "string",
+          "default": null,
+          "markdownDescription": "Path to a JSON `.table.json` defining custom tabular views (each with a row `select` and `columns`). Adds to the built-in presets (Requirements, Interfaces, Elements). Absolute, or relative to the workspace folder or the .sysml file. See `examples/tables/celeris.table.json`."
         }
       }
     }

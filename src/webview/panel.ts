@@ -13,12 +13,14 @@ export interface ViewOptions {
 
 export interface DiagramPanelOptions {
   title: string;
-  /** Mermaid diagram source text. */
+  /** Diagram content: Mermaid text, or an HTML fragment when format is "html". */
   mermaid: string;
   /** Mermaid theme name. */
   theme: string;
   /** Number of parser errors in the source at open time. */
   parseErrors?: number;
+  /** "mermaid" (default) renders via Mermaid; "html" injects the content (table view). */
+  format?: "mermaid" | "html";
   context: vscode.ExtensionContext;
   /** Re-parse the source and rebuild the diagram, honouring the current view toggles. */
   onRefresh: (view?: ViewOptions) => Promise<RefreshResult>;
@@ -76,6 +78,7 @@ export function showDiagramPanel(opts: DiagramPanelOptions): ShownPanel {
   panel.webview.onDidReceiveMessage((msg) => {
     if (msg?.type === "refresh") void refresh(msg.view as ViewOptions | undefined);
     else if (msg?.type === "export") void savePng(msg.dataUrl, opts.title);
+    else if (msg?.type === "exportCsv") void saveCsv(msg.csv, opts.title);
   });
 
   return { panel, refresh };
@@ -112,6 +115,27 @@ async function savePng(dataUrl: string, title: string): Promise<void> {
   }
 }
 
+/** Save a table view's CSV text via a Save dialog. */
+async function saveCsv(csv: string, title: string): Promise<void> {
+  const fileName = title.replace(/[^A-Za-z0-9._-]+/g, "_").replace(/^_+|_+$/g, "") || "table";
+  const folders = vscode.workspace.workspaceFolders;
+  const defaultDir = folders && folders.length > 0 ? folders[0].uri : vscode.Uri.file(fileName);
+  const target = await vscode.window.showSaveDialog({
+    defaultUri: vscode.Uri.joinPath(defaultDir, `${fileName}.csv`),
+    filters: { "CSV files": ["csv"] },
+    saveLabel: "Export CSV",
+  });
+  if (!target) return;
+  try {
+    const bom = Buffer.from([0xef, 0xbb, 0xbf]); // UTF-8 BOM so Excel reads accents correctly
+    await vscode.workspace.fs.writeFile(target, Buffer.concat([bom, Buffer.from(csv ?? "", "utf8")]));
+    const open = await vscode.window.showInformationMessage(`Table exported to ${target.fsPath}`, "Open");
+    if (open === "Open") void vscode.commands.executeCommand("vscode.open", target);
+  } catch (e: any) {
+    void vscode.window.showErrorMessage("Could not save CSV: " + (e?.message ?? String(e)));
+  }
+}
+
 function renderHtml(webview: vscode.Webview, mediaRoot: vscode.Uri, opts: DiagramPanelOptions): string {
   const nonce = randomBytes(16).toString("base64");
   const mermaidUri = webview.asWebviewUri(vscode.Uri.joinPath(mediaRoot, "mermaid.min.js"));
@@ -123,11 +147,13 @@ function renderHtml(webview: vscode.Webview, mediaRoot: vscode.Uri, opts: Diagra
     `font-src ${webview.cspSource} data:`,
   ].join("; ");
 
+  const format = opts.format ?? "mermaid";
   // Pass the diagram + theme to the webview as JSON to avoid escaping pitfalls.
   const payload = JSON.stringify({
     definition: opts.mermaid,
     theme: opts.theme,
     parseErrors: opts.parseErrors ?? 0,
+    format,
   });
 
   return `<!DOCTYPE html>
@@ -154,6 +180,14 @@ function renderHtml(webview: vscode.Webview, mediaRoot: vscode.Uri, opts: Diagra
     #viewport.panning { cursor: grabbing; }
     #canvas { position: absolute; top: 0; left: 0; transform-origin: 0 0; }
     #canvas svg { display: block; }
+    table.celeris-table { border-collapse: collapse; background: #fff; font-size: 13px; }
+    table.celeris-table caption { text-align: left; font-weight: 600; padding: 4px 2px 8px; font-size: 14px; }
+    table.celeris-table caption .count { color: #888; font-weight: 400; font-size: 12px; }
+    table.celeris-table th, table.celeris-table td { border: 1px solid #cbd2da; padding: 4px 10px;
+      text-align: left; vertical-align: top; max-width: 460px; }
+    table.celeris-table thead th { background: #eef2f7; position: sticky; top: 0; }
+    table.celeris-table tbody tr:nth-child(even) { background: #f7f9fc; }
+    table.celeris-table tbody tr:hover { background: #eaf2ff; }
     .error { color: #b00020; white-space: pre-wrap; font-family: var(--vscode-editor-font-family, monospace); padding: 12px; }
     #footer { flex: 0 0 auto; border-top: 1px solid #ddd; max-height: 28vh; overflow: auto; }
     #footer details { margin: 0; color: #555; }
@@ -172,7 +206,7 @@ function renderHtml(webview: vscode.Webview, mediaRoot: vscode.Uri, opts: Diagra
     <button id="zoomin" title="Zoom in">+</button>
     <button id="fit" title="Fit to window (auto)">⤢ Fit</button>
     <span id="zoom">100%</span>
-    <span class="sep"></span>
+    <span class="sep" id="toggleSep"></span>
     <button id="toggleDefs" class="toggle" title="Hide/show definition boxes (class &amp; requirement views)">Defs</button>
     <button id="toggleInh" class="toggle" title="Hide/show inherited types — inheritance edges &amp; supertypes (class &amp; requirement views)">Inherited</button>
     <span id="status"></span>
@@ -181,7 +215,7 @@ function renderHtml(webview: vscode.Webview, mediaRoot: vscode.Uri, opts: Diagra
   <div id="viewport"><div id="canvas">Rendering…</div></div>
   <div id="footer">
     <details>
-      <summary>Mermaid source</summary>
+      <summary>Source</summary>
       <pre class="src" id="src"></pre>
     </details>
   </div>
@@ -203,8 +237,10 @@ function renderHtml(webview: vscode.Webview, mediaRoot: vscode.Uri, opts: Diagra
       // iframe reload (e.g. "Developer: Reload Webviews") and stay the source of truth.
       const persistedView = vscode.getState() || {};
       let hideDefs = !!persistedView.hideDefinitions, hideInh = !!persistedView.hideInheritance;
+      const VIEW_FORMAT = ${JSON.stringify(format)}; // "mermaid" | "html" (table view)
       let seq = 0;
       let lastSvg = null;
+      let lastTable = null; // the rendered <table> element for an html (table) view
 
       // --- pan / zoom state ---
       let scale = 1, tx = 0, ty = 0, natW = 0, natH = 0;
@@ -249,14 +285,27 @@ function renderHtml(webview: vscode.Webview, mediaRoot: vscode.Uri, opts: Diagra
       }
 
       function showError(message) {
-        lastSvg = null; exportBtn.disabled = true;
+        lastSvg = null; lastTable = null; exportBtn.disabled = true;
         canvas.style.transform = "none";
         canvas.innerHTML = '<div class="error"></div>';
         canvas.firstChild.textContent = message;
       }
 
+      // Table (html) views: inject the HTML and size the canvas to the table.
+      function renderTable(html) {
+        lastSvg = null;
+        canvas.innerHTML = html;
+        lastTable = canvas.querySelector("table");
+        exportBtn.disabled = !lastTable;
+        const el = lastTable || canvas.firstElementChild;
+        natW = (el && (el.scrollWidth || el.offsetWidth)) || 800;
+        natH = (el && (el.scrollHeight || el.offsetHeight)) || 400;
+        fit();
+      }
+
       function render(definition, theme) {
         srcEl.textContent = definition;
+        if (VIEW_FORMAT === "html") { renderTable(definition); return; }
         const id = "sysmlGraph" + (++seq); // unique id avoids mermaid re-render clashes
         try {
           // htmlLabels:false keeps labels as SVG <text> (no <foreignObject>), so the
@@ -329,9 +378,29 @@ function renderHtml(webview: vscode.Webview, mediaRoot: vscode.Uri, opts: Diagra
         }
       }
 
+      // Build CSV from the rendered table DOM and hand it to the extension to save.
+      function exportCsv() {
+        if (!lastTable) { setBusy(false, ""); return; }
+        const lines = [];
+        const trs = lastTable.querySelectorAll("tr");
+        for (let i = 0; i < trs.length; i++) {
+          const cells = trs[i].querySelectorAll("th,td");
+          const out = [];
+          for (let j = 0; j < cells.length; j++) {
+            let v = cells[j].textContent || "";
+            if (/^[=+@-]/.test(v)) v = "'" + v; // neutralize spreadsheet formula injection
+            out.push('"' + v.replace(/"/g, '""') + '"');
+          }
+          if (out.length) lines.push(out.join(","));
+        }
+        vscode.postMessage({ type: "exportCsv", csv: lines.join("\\r\\n") });
+        setBusy(false, "Exported");
+        setTimeout(function () { if (statusEl.textContent === "Exported") statusEl.textContent = ""; }, 1500);
+      }
+
       function setBusy(busy, text) {
         refreshBtn.disabled = busy;
-        exportBtn.disabled = busy || !lastSvg;
+        exportBtn.disabled = busy || (!lastSvg && !lastTable);
         toggleDefsBtn.disabled = busy; // avoid concurrent refreshes from rapid toggling
         toggleInhBtn.disabled = busy;
         statusEl.textContent = text || "";
@@ -347,7 +416,7 @@ function renderHtml(webview: vscode.Webview, mediaRoot: vscode.Uri, opts: Diagra
 
       exportBtn.addEventListener("click", function () {
         setBusy(true, "Exporting…");
-        exportPng();
+        if (VIEW_FORMAT === "html") exportCsv(); else exportPng();
       });
 
       // View filter toggles (effective on class & requirement diagrams).
@@ -369,7 +438,7 @@ function renderHtml(webview: vscode.Webview, mediaRoot: vscode.Uri, opts: Diagra
       document.getElementById("fit").addEventListener("click", fit);
 
       viewport.addEventListener("wheel", function (e) {
-        if (!lastSvg) return;
+        if (!lastSvg && !lastTable) return;
         e.preventDefault();
         const r = viewport.getBoundingClientRect();
         zoomAt(e.deltaY < 0 ? 1.12 : 1 / 1.12, e.clientX - r.left, e.clientY - r.top);
@@ -377,7 +446,7 @@ function renderHtml(webview: vscode.Webview, mediaRoot: vscode.Uri, opts: Diagra
 
       let dragging = false, lastX = 0, lastY = 0;
       viewport.addEventListener("mousedown", function (e) {
-        if (!lastSvg) return;
+        if (!lastSvg && !lastTable) return;
         dragging = true; lastX = e.clientX; lastY = e.clientY;
         viewport.classList.add("panning");
       });
@@ -413,6 +482,15 @@ function renderHtml(webview: vscode.Webview, mediaRoot: vscode.Uri, opts: Diagra
           setBusy(false, "");
         }
       });
+
+      // Table views export CSV and have no diagram-only toggles.
+      if (VIEW_FORMAT === "html") {
+        exportBtn.textContent = "⤓ CSV";
+        exportBtn.title = "Export the table as CSV";
+        toggleDefsBtn.style.display = "none";
+        toggleInhBtn.style.display = "none";
+        document.getElementById("toggleSep").style.display = "none";
+      }
 
       // Reflect any restored toggle state on the buttons.
       toggleDefsBtn.classList.toggle("active", hideDefs);
