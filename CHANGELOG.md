@@ -2,6 +2,21 @@
 
 All notable changes to **Celeris** are documented here.
 
+## 0.5.0
+
+### Added
+- **Gantt (schedule) view** — turn an activity sequence into a **Gantt**
+  (right-click → Celeris → **Show Gantt Diagram**): `action`s become tasks and
+  `succession`s become dependencies. Planning attributes drive each bar —
+  `attribute duration = <days>;` (length) and `attribute resource = "<name>";`
+  (colour, one section per resource). The **critical path** is computed by the
+  **Critical Path Method** and outlined in red.
+
+### Changed
+- The PDF user manual now covers **every** feature, rendering each **tabular
+  view** (as an embedded HTML table) and the **Gantt** example alongside the
+  existing diagrams.
+
 ## 0.4.0
 
 ### Added
