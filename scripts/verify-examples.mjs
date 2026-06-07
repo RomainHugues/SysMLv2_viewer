@@ -30,6 +30,7 @@ const MAP = {
   "breakdown/component_breakdown.sysml": "class",
   "interconnection/avionics_power.sysml": "interconnection",
   "interconnection/signal_chain.sysml": "interconnection",
+  "realization/cross_level.sysml": "realization",
 };
 
 const harness = `

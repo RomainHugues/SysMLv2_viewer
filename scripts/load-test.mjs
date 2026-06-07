@@ -20,6 +20,7 @@ const CASES = [
   ["sequence_big.sysml", "sequence"],
   ["requirement_big.sysml", "requirement"],
   ["interconnection_big.sysml", "interconnection"],
+  ["realization_big.sysml", "realization"],
 ];
 
 const harness = `

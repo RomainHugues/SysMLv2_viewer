@@ -67,6 +67,11 @@
         "category": "Celeris"
       },
       {
+        "command": "celeris.showRealization",
+        "title": "Show Realization Diagram",
+        "category": "Celeris"
+      },
+      {
         "command": "celeris.selectStyleFile",
         "title": "Select Style File…",
         "category": "Celeris"
@@ -119,6 +124,10 @@
         },
         {
           "command": "celeris.showInterconnection",
+          "when": "resourceLangId == sysml"
+        },
+        {
+          "command": "celeris.showRealization",
           "when": "resourceLangId == sysml"
         }
       ]

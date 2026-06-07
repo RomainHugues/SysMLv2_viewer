@@ -149,6 +149,24 @@ function interconnection() {
   return L.join("\n") + "\n";
 }
 
+// 9) Realization — leveled elements (Arcadia layers) wired by cross-level dependencies.
+function realization() {
+  const PER = 12 * S;
+  const TYPES = ["OperationalEntity", "SystemFunction", "LogicalComponent", "PhysicalNode"];
+  const PFX = ["Op", "Sy", "Lo", "Ph"];
+  const L = ["package StressRealization {",
+    "    part def OperationalEntity;", "    action def SystemFunction;",
+    "    part def LogicalComponent;", "    part def PhysicalNode;"];
+  for (let lv = 0; lv < 4; lv++) {
+    const kw = TYPES[lv] === "SystemFunction" ? "action" : "part";
+    for (const i of range(PER)) L.push(`    ${kw} def ${PFX[lv]}${i} :> ${TYPES[lv]};`);
+  }
+  for (let lv = 1; lv < 4; lv++)
+    for (const i of range(PER)) L.push(`    dependency from ${PFX[lv]}${i} to ${PFX[lv - 1]}${i % PER};`);
+  L.push("}");
+  return L.join("\n") + "\n";
+}
+
 const FILES = {
   "flowchart_big.sysml": flowchart(),
   "chains_big.sysml": chains(),
@@ -158,6 +176,7 @@ const FILES = {
   "sequence_big.sysml": sequence(),
   "requirement_big.sysml": requirement(),
   "interconnection_big.sysml": interconnection(),
+  "realization_big.sysml": realization(),
 };
 
 for (const [name, content] of Object.entries(FILES)) {

@@ -45,11 +45,14 @@ const EXAMPLES = [
     blurb: "The SysML Internal Block Diagram. Each <code>part</code> is a block carrying its <code>port</code>s; a <code>connect</code> is a thin line and a typed <code>interface</code> a bold (purple) connector between ports." },
   { file: "examples/interconnection/signal_chain.sysml", type: "interconnection", title: "Interconnection (IBD) — data flow",
     blurb: "Same view for behaviour: each <code>action</code> is a block carrying its <code>in</code>/<code>out</code> <code>ref</code> parameters (▸ marks the direction), and an item <code>flow</code> is a directed (green) connector labelled with the flowing item." },
+  { file: "examples/realization/cross_level.sysml", type: "realization", title: "Realization — traceability across engineering levels",
+    blurb: "Elements are placed in lanes by engineering level (set by specializing an Arcadia/NAF level type), most abstract on top; realization/traceability <code>dependency</code> links are drawn across the lanes (dashed, pointing to the element realized)." },
 ];
 
 const FEATURES = [
   "Render the contents of a SysML v2 package as a Mermaid diagram from the editor (right-click → Celeris).",
-  "Six diagram types: flowchart, class, state, sequence, requirement and interconnection (IBD).",
+  "Seven diagram types: flowchart, class, state, sequence, requirement, interconnection (IBD) and realization.",
+  "Realization view: cross-level traceability — elements placed in engineering-level lanes (Arcadia/NAF) with realization dependencies drawn between levels.",
   "The class diagram doubles as a Block Definition Diagram (BDD): function breakdowns (action def) and component breakdowns (part def) render as composition trees.",
   "Interconnection (Internal Block Diagram): parts with their ports wired by connect/interface, and actions with in/out ref parameters wired by item flows.",
   "In-process parsing with the open-source SysML v2 parser (syside-languageserver); reusable profile libraries in sibling files are resolved automatically.",
@@ -73,6 +76,7 @@ const CHANGELOG = [
   ["View toggles", "Hide definitions / inherited types in the class and requirement diagrams (per-panel toolbar)."],
   ["Breakdown (BDD)", "The class diagram doubles as a Block Definition Diagram: function and component breakdown trees via composition."],
   ["Interconnection (IBD)", "A sixth view: parts wired by ports/connect/interface, and functions wired by in/out parameters and item flows."],
+  ["Realization", "A seventh view: cross-level traceability — engineering-level lanes (Arcadia/NAF) with realization dependencies between them."],
 ];
 
 // --- 1. compute mermaid for each example via the real pipeline ----------------

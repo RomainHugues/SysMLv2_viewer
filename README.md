@@ -7,7 +7,7 @@ with irrelevant elements filtered out. Several diagrams can be open at once
 (one per panel).
 
 Diagram types: **flowchart**, **class**, **state**, **sequence**,
-**requirement** and **interconnection** (all implemented). See
+**requirement**, **interconnection** and **realization** (all implemented). See
 [examples/](examples/README.md) for a sample model per type.
 
 The **class** diagram doubles as a SysML **Block Definition Diagram (BDD)**, so it
@@ -19,6 +19,12 @@ The **interconnection** diagram is the SysML **Internal Block Diagram (IBD)**: i
 wires the inside of a block — **parts** through their **ports** (`connect` /
 `interface`) and **functions** through their **in/out** parameters (item `flow`).
 See [examples/interconnection/](examples/interconnection/README.md).
+
+The **realization** diagram shows **cross-level traceability**: elements are placed
+in **engineering-level lanes** (Arcadia/NAF — Operational → System → Logical →
+Physical, from each element's conformed profile type) with **realization**
+`dependency` links drawn between levels. See
+[examples/realization/](examples/realization/README.md).
 
 ## How it works
 
