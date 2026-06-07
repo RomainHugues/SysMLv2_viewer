@@ -2,6 +2,14 @@
 
 All notable changes to **Celeris** are documented here.
 
+## 0.3.0
+
+### Added
+- **Realization diagram** — a seventh view for **cross-level traceability**:
+  elements are laid out in **engineering-level lanes** (Operational → System →
+  Logical → Physical, from each element's conformed Arcadia/NAF profile type) with
+  **realization** `dependency` links drawn between the levels.
+
 ## 0.2.0
 
 ### Added
