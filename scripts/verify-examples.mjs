@@ -31,6 +31,7 @@ const MAP = {
   "interconnection/avionics_power.sysml": "interconnection",
   "interconnection/signal_chain.sysml": "interconnection",
   "realization/cross_level.sysml": "realization",
+  "gantt/mission.sysml": "gantt",
 };
 
 const harness = `

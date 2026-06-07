@@ -33,6 +33,12 @@ traverse it) and **elements** (any type). Define your own — a row `select` + c
 — in a `.table.json` pointed to by `celeris.tableConfig`. See
 [examples/tables/](examples/tables/README.md).
 
+**Gantt (schedule) view** — turn an activity sequence into a **Gantt** (right-click →
+Celeris → **Show Gantt Diagram**): `action`s are tasks, `succession`s are
+dependencies, and planning attributes set each bar — `attribute duration = <days>;`
+(length) and `attribute resource = "<name>";` (colour, one section per resource). The
+**critical path** is outlined in red. See [examples/gantt/](examples/gantt/README.md).
+
 ## How it works
 
 - **Parsing** reuses the open-source SysML v2 parser

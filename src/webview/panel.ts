@@ -303,6 +303,25 @@ function renderHtml(webview: vscode.Webview, mediaRoot: vscode.Uri, opts: Diagra
         fit();
       }
 
+      // Gantt views carry a base64 colour map in a trailing %% comment (Mermaid
+      // ignores it). Recolour each task bar by resource and outline the critical path.
+      function applyGanttColors(svg, definition) {
+        const m = /%% celeris-gantt:([A-Za-z0-9+/=]+)/.exec(definition);
+        if (!m) return;
+        let map;
+        try { map = JSON.parse(atob(m[1])); } catch (e) { return; }
+        const rects = svg.querySelectorAll("rect.task");
+        for (let i = 0; i < rects.length; i++) {
+          const id = rects[i].id || "";
+          const tid = id.indexOf("-") >= 0 ? id.slice(id.lastIndexOf("-") + 1) : id; // task id is the last "-" segment
+          const e = map[tid];
+          if (!e) continue;
+          rects[i].style.fill = e.f;
+          rects[i].style.fillOpacity = "1";
+          if (e.c) { rects[i].style.stroke = "#d00000"; rects[i].style.strokeWidth = "3px"; }
+        }
+      }
+
       function render(definition, theme) {
         srcEl.textContent = definition;
         if (VIEW_FORMAT === "html") { renderTable(definition); return; }
@@ -322,6 +341,7 @@ function renderHtml(webview: vscode.Webview, mediaRoot: vscode.Uri, opts: Diagra
               canvas.innerHTML = res.svg;
               lastSvg = canvas.querySelector("svg");
               exportBtn.disabled = !lastSvg;
+              if (lastSvg) applyGanttColors(lastSvg, definition);
               if (lastSvg) {
                 const vb = lastSvg.viewBox && lastSvg.viewBox.baseVal;
                 const bb = lastSvg.getBBox ? lastSvg.getBBox() : null;

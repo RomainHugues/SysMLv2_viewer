@@ -47,6 +47,12 @@ const EXAMPLES = [
     blurb: "Same view for behaviour: each <code>action</code> is a block carrying its <code>in</code>/<code>out</code> <code>ref</code> parameters (▸ marks the direction), and an item <code>flow</code> is a directed (green) connector labelled with the flowing item." },
   { file: "examples/realization/cross_level.sysml", type: "realization", title: "Realization — traceability across engineering levels",
     blurb: "Elements are placed in lanes by engineering level (set by specializing an Arcadia/NAF level type), most abstract on top; realization/traceability <code>dependency</code> links are drawn across the lanes (dashed, pointing to the element realized)." },
+  { file: "examples/gantt/mission.sysml", type: "gantt", title: "Gantt — schedule, resources &amp; critical path",
+    blurb: "An activity sequence (<code>action</code>s + <code>succession</code>s) as a Gantt. <code>attribute duration</code> sets each bar's length, <code>attribute resource</code> its colour (one section per resource), and the critical path — the chain that fixes the total duration — is outlined in red." },
+  { file: "examples/vehicle_requirements.sysml", render: "table", table: "requirements", title: "Tabular view — requirements",
+    blurb: "The <b>Requirements</b> table preset: id, text, subject, derived-from and satisfied-by, one row per requirement. Right-click → Celeris → Show Table…; exportable to CSV." },
+  { file: "examples/tables/system.sysml", render: "table", table: "interfaces", title: "Tabular view — interfaces (ports / parts / flows)",
+    blurb: "The <b>Interfaces</b> table preset: each <code>connect</code>/<code>interface</code> with its source and target <code>part.port</code> and the item flows that traverse it. Built-in presets also cover requirements and any element type; custom tables via a .table.json." },
 ];
 
 const FEATURES = [
@@ -54,6 +60,7 @@ const FEATURES = [
   "Seven diagram types: flowchart, class, state, sequence, requirement, interconnection (IBD) and realization.",
   "Realization view: cross-level traceability — elements placed in engineering-level lanes (Arcadia/NAF) with realization dependencies drawn between levels.",
   "Tabular views: requirements, interfaces (ports / parts / flows) and any element type as a table, configurable via a .table.json (select + columns) plus built-in presets, with CSV export.",
+  "Gantt (schedule) view: an activity sequence (actions + successions) as a Gantt — duration and resource attributes set each bar's length and colour, and the critical path is outlined in red.",
   "The class diagram doubles as a Block Definition Diagram (BDD): function breakdowns (action def) and component breakdowns (part def) render as composition trees.",
   "Interconnection (Internal Block Diagram): parts with their ports wired by connect/interface, and actions with in/out ref parameters wired by item flows.",
   "In-process parsing with the open-source SysML v2 parser (syside-languageserver); reusable profile libraries in sibling files are resolved automatically.",
@@ -79,6 +86,7 @@ const CHANGELOG = [
   ["Interconnection (IBD)", "A sixth view: parts wired by ports/connect/interface, and functions wired by in/out parameters and item flows."],
   ["Realization", "A seventh view: cross-level traceability — engineering-level lanes (Arcadia/NAF) with realization dependencies between them."],
   ["Tabular views", "Requirements / interfaces / any-element tables (HTML) with CSV export, configurable via a .table.json plus built-in presets."],
+  ["Gantt (schedule)", "Activity sequences as a Gantt: duration/resource attributes drive bar length and colour; the critical path is outlined in red."],
 ];
 
 // --- 1. compute mermaid for each example via the real pipeline ----------------
@@ -90,6 +98,7 @@ import { parseText } from ${S("src/sysml/parser.ts")};
 import { allPackages } from ${S("src/sysml/packageAtCursor.ts")};
 import { diagramTypes } from ${S("src/diagrams/registry.ts")};
 import { parseStyleSheet } from ${S("src/style/style.ts")};
+import { tableProviders, tableToHtml } from ${S("src/tables/index.ts")};
 const EXAMPLES = ${JSON.stringify(EXAMPLES)};
 const repo = ${JSON.stringify(repo)};
 (async () => {
@@ -99,10 +108,14 @@ const repo = ${JSON.stringify(repo)};
     const sysml = fs.readFileSync(file, "utf8");
     const { document } = await parseText(file, sysml);
     const pkg = allPackages(document)[0];
-    const dt = diagramTypes.find((d) => d.id === ex.type);
-    const styleSheet = ex.style ? parseStyleSheet(JSON.parse(fs.readFileSync(repo + "/" + ex.style, "utf8"))) : undefined;
-    const mermaid = dt.build(pkg, { direction: "TB", theme: "default", styleSheet });
-    out.push({ ...ex, sysml, mermaid });
+    if (ex.render === "table") {
+      const prov = tableProviders().find((p) => p.id === ex.table);
+      out.push({ ...ex, sysml, html: tableToHtml(prov.build(pkg)) });
+    } else {
+      const dt = diagramTypes.find((d) => d.id === ex.type);
+      const styleSheet = ex.style ? parseStyleSheet(JSON.parse(fs.readFileSync(repo + "/" + ex.style, "utf8"))) : undefined;
+      out.push({ ...ex, sysml, mermaid: dt.build(pkg, { direction: "TB", theme: "default", styleSheet }) });
+    }
   }
   fs.writeFileSync(${JSON.stringify(dataFile)}, JSON.stringify(out, null, 2));
 })().catch((e) => { console.error(e); process.exit(1); });
@@ -139,8 +152,16 @@ function highlight(code) {
 const mermaidJs = fs.readFileSync(path.join(repo, "media/mermaid.min.js"), "utf8");
 const iconB64 = fs.readFileSync(path.join(repo, "icons/icon.png")).toString("base64");
 
+function diagramCell(ex) {
+  if (ex.render === "table") return `<div class="tablewrap">${ex.html}</div>`;
+  if (ex.type === "gantt") {
+    const b64 = (/%% celeris-gantt:([A-Za-z0-9+/=]+)/.exec(ex.mermaid) || [])[1] || "";
+    return `<div class="ganttwrap" data-gantt="${b64}"><pre class="mermaid">${escapeHtml(ex.mermaid)}</pre></div>`;
+  }
+  return `<pre class="mermaid">${escapeHtml(ex.mermaid)}</pre>`;
+}
 const examplesHtml = data.map((ex) => `
-  <section class="example">
+  <section class="example${ex.render === "table" ? " wide" : ""}">
     <h3>${ex.title}</h3>
     <p class="blurb">${ex.blurb}</p>
     <div class="cols">
@@ -149,8 +170,8 @@ const examplesHtml = data.map((ex) => `
         <pre><code>${highlight(ex.sysml)}</code></pre>
       </div>
       <div class="diagram">
-        <div class="cap">${ex.type} diagram</div>
-        <pre class="mermaid">${escapeHtml(ex.mermaid)}</pre>
+        <div class="cap">${ex.render === "table" ? "table view" : ex.type + " diagram"}</div>
+        ${diagramCell(ex)}
       </div>
     </div>
   </section>`).join("\n");
@@ -182,6 +203,14 @@ const html = `<!doctype html>
   .code .cm { color: var(--cm); font-style: italic; }
   .diagram pre.mermaid { background: #fff; text-align: center; }
   .diagram svg { max-width: 100%; height: auto; }
+  .example.wide .cols { grid-template-columns: 1fr; }
+  .tablewrap { overflow: hidden; }
+  table.celeris-table { border-collapse: collapse; background: #fff; font-size: 10px; }
+  table.celeris-table caption { text-align: left; font-weight: 600; padding: 2px 0 6px; font-size: 11px; }
+  table.celeris-table caption .count { color: #888; font-weight: 400; }
+  table.celeris-table th, table.celeris-table td { border: 1px solid var(--line); padding: 2px 7px; text-align: left; vertical-align: top; max-width: 320px; }
+  table.celeris-table thead th { background: #eef2f7; }
+  table.celeris-table tbody tr:nth-child(even) { background: #f7f9fc; }
   @page { size: A4; margin: 14mm; }
 </style></head>
 <body>
@@ -203,7 +232,23 @@ const html = `<!doctype html>
 
   <script>${mermaidJs}</script>
   <script>
-    mermaid.initialize({ startOnLoad: true, securityLevel: "loose", flowchart: { htmlLabels: false } });
+    mermaid.initialize({ startOnLoad: false, securityLevel: "loose", flowchart: { htmlLabels: false } });
+    mermaid.run().then(function () {
+      document.querySelectorAll(".ganttwrap").forEach(function (w) {
+        const b64 = w.getAttribute("data-gantt");
+        const svg = w.querySelector("svg");
+        if (!b64 || !svg) return;
+        let map; try { map = JSON.parse(atob(b64)); } catch (e) { return; }
+        svg.querySelectorAll("rect.task").forEach(function (rect) {
+          const id = rect.id || "";
+          const tid = id.indexOf("-") >= 0 ? id.slice(id.lastIndexOf("-") + 1) : id; // task id is the last "-" segment
+          const e = map[tid];
+          if (!e) return;
+          rect.style.fill = e.f; rect.style.fillOpacity = "1";
+          if (e.c) { rect.style.stroke = "#d00000"; rect.style.strokeWidth = "3px"; }
+        });
+      });
+    });
   </script>
 </body></html>`;
 

@@ -72,6 +72,11 @@
         "category": "Celeris"
       },
       {
+        "command": "celeris.showGantt",
+        "title": "Show Gantt Diagram",
+        "category": "Celeris"
+      },
+      {
         "command": "celeris.showTable",
         "title": "Show Table…",
         "category": "Celeris"
@@ -133,6 +138,10 @@
         },
         {
           "command": "celeris.showRealization",
+          "when": "resourceLangId == sysml"
+        },
+        {
+          "command": "celeris.showGantt",
           "when": "resourceLangId == sysml"
         },
         {

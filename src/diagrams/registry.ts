@@ -7,6 +7,7 @@ import { sequenceDiagram } from "./sequence";
 import { requirementDiagram } from "./requirement";
 import { interconnectionDiagram } from "./interconnection";
 import { realizationDiagram } from "./realization";
+import { ganttDiagram } from "./gantt";
 
 export interface DiagramConfig {
   direction: "TB" | "LR" | "BT" | "RL";
@@ -41,4 +42,5 @@ export const diagramTypes: DiagramType[] = [
   requirementDiagram,
   interconnectionDiagram,
   realizationDiagram,
+  ganttDiagram,
 ];
