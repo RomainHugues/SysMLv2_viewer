@@ -95,6 +95,11 @@
         "command": "celeris.showLog",
         "title": "Show Log",
         "category": "Celeris"
+      },
+      {
+        "command": "celeris.showClassSvg",
+        "title": "Show Class Diagram (SVG — experimental)",
+        "category": "Celeris"
       }
     ],
     "submenus": [
@@ -146,6 +151,10 @@
         },
         {
           "command": "celeris.showTable",
+          "when": "resourceLangId == sysml"
+        },
+        {
+          "command": "celeris.showClassSvg",
           "when": "resourceLangId == sysml"
         }
       ]
@@ -212,6 +221,7 @@
     "vscode-uri": "^3.0.8"
   },
   "devDependencies": {
+    "@dagrejs/dagre": "^3.0.0",
     "@types/node": "^22.0.0",
     "@types/vscode": "^1.85.0",
     "@vscode/vsce": "^3.9.1",

@@ -7,6 +7,8 @@ import { loadStyleSheet } from "./style/load";
 import { tableProviders, tableToHtml } from "./tables";
 import { loadTableSpecs } from "./tables/load";
 import { log, showLog } from "./log";
+import { extractClass, filterClassModel } from "./diagrams/class/extract";
+import { classToSvg } from "./diagrams/class/svg";
 
 const STYLE_PATH_KEY = "celeris.selectedStyleFile";
 
@@ -28,7 +30,8 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand("celeris.showTable", () => showTable(context)),
     vscode.commands.registerCommand("celeris.selectStyleFile", () => selectStyleFile(context)),
     vscode.commands.registerCommand("celeris.clearStyleFile", () => clearStyleFile(context)),
-    vscode.commands.registerCommand("celeris.showLog", () => showLog())
+    vscode.commands.registerCommand("celeris.showLog", () => showLog()),
+    vscode.commands.registerCommand("celeris.showClassSvg", () => showClassSvg(context))
   );
 
   // Auto-refresh open diagrams when their .sysml source is saved (if enabled).
@@ -220,6 +223,64 @@ async function openSource(uri: vscode.Uri): Promise<vscode.TextDocument | undefi
     return await vscode.workspace.openTextDocument(uri);
   } catch {
     return undefined;
+  }
+}
+
+/** Experimental: show the class diagram rendered as native SVG (no Mermaid engine). */
+async function showClassSvg(context: vscode.ExtensionContext): Promise<void> {
+  const editor = vscode.window.activeTextEditor;
+  if (!editor || editor.document.languageId !== "sysml") {
+    vscode.window.showWarningMessage("Open a .sysml file and place the cursor inside a package.");
+    return;
+  }
+  const sourceUri = editor.document.uri;
+  try {
+    const { document } = await parseText(sourceUri.fsPath, editor.document.getText());
+    const offset = editor.document.offsetAt(editor.selection.active);
+    const pkg = findEnclosingPackage(document, offset) ?? allPackages(document)[0];
+    if (!pkg) {
+      vscode.window.showWarningMessage("No SysML package found in this file.");
+      return;
+    }
+    const pkgName: string = pkg.declaredName ?? "package";
+    const pkgQName: string | undefined = pkg.$meta?.qualifiedName;
+
+    const config = readConfig(sourceUri, context);
+    const model = filterClassModel(extractClass(pkg, config.styleSheet), config);
+    if (model.classes.length === 0) {
+      vscode.window.showInformationMessage(`No class elements in package '${pkgName}'.`);
+      return;
+    }
+    const svg = classToSvg(model, { direction: config.direction });
+
+    const onRefresh = async (view?: ViewOptions): Promise<RefreshResult> => {
+      const doc = await openSource(sourceUri);
+      if (!doc) return { error: "Source file is no longer available." };
+      const reparsed = (await parseText(sourceUri.fsPath, doc.getText())).document;
+      const target =
+        (pkgQName && findPackageByQualifiedName(reparsed, pkgQName)) ?? allPackages(reparsed)[0];
+      if (!target) return { error: `Package '${pkgName}' was not found in the file.` };
+      const cfg = { ...readConfig(sourceUri, context), ...(view ?? {}) };
+      const m = filterClassModel(extractClass(target, cfg.styleSheet), cfg);
+      if (m.classes.length === 0) return { error: `No class elements in package '${pkgName}' anymore.` };
+      return { mermaid: classToSvg(m, { direction: cfg.direction }), theme: cfg.theme, parseErrors: parserErrorCount(reparsed) };
+    };
+
+    const shown = showDiagramPanel({
+      title: `Class SVG: ${pkgName}`,
+      mermaid: svg,
+      theme: config.theme,
+      parseErrors: parserErrorCount(document),
+      format: "svg",
+      context,
+      onRefresh,
+    });
+
+    const entry: OpenDiagram = { sourceUri, refresh: shown.refresh };
+    openDiagrams.add(entry);
+    shown.panel.onDidDispose(() => openDiagrams.delete(entry));
+  } catch (e: any) {
+    vscode.window.showErrorMessage("Failed to render Class SVG diagram: " + (e?.message ?? String(e)));
   }
 }
 

@@ -19,8 +19,8 @@ export interface DiagramPanelOptions {
   theme: string;
   /** Number of parser errors in the source at open time. */
   parseErrors?: number;
-  /** "mermaid" (default) renders via Mermaid; "html" injects the content (table view). */
-  format?: "mermaid" | "html";
+  /** "mermaid" (default) renders via Mermaid; "html" injects content (table); "svg" injects raw SVG. */
+  format?: "mermaid" | "html" | "svg";
   context: vscode.ExtensionContext;
   /** Re-parse the source and rebuild the diagram, honouring the current view toggles. */
   onRefresh: (view?: ViewOptions) => Promise<RefreshResult>;
@@ -219,7 +219,7 @@ function renderHtml(webview: vscode.Webview, mediaRoot: vscode.Uri, opts: Diagra
       <pre class="src" id="src"></pre>
     </details>
   </div>
-  <script nonce="${nonce}" src="${mermaidUri}"></script>
+  ${format !== "svg" ? `<script nonce="${nonce}" src="${mermaidUri}"></script>` : "<!-- mermaid not loaded for svg format -->"}
   <script nonce="${nonce}">
     (function () {
       const vscode = acquireVsCodeApi();
@@ -322,9 +322,25 @@ function renderHtml(webview: vscode.Webview, mediaRoot: vscode.Uri, opts: Diagra
         }
       }
 
+      // Raw SVG format: inject the SVG directly and reuse the same pan/zoom/export path.
+      function renderSvg(svgText) {
+        lastTable = null;
+        canvas.innerHTML = svgText;
+        lastSvg = canvas.querySelector("svg");
+        exportBtn.disabled = !lastSvg;
+        if (lastSvg) {
+          const vb = lastSvg.viewBox && lastSvg.viewBox.baseVal;
+          natW = (vb && vb.width) || lastSvg.width.baseVal.value || 600;
+          natH = (vb && vb.height) || lastSvg.height.baseVal.value || 400;
+          lastSvg.style.maxWidth = "none";
+          fit();
+        }
+      }
+
       function render(definition, theme) {
         srcEl.textContent = definition;
         if (VIEW_FORMAT === "html") { renderTable(definition); return; }
+        if (VIEW_FORMAT === "svg") { renderSvg(definition); return; }
         const id = "sysmlGraph" + (++seq); // unique id avoids mermaid re-render clashes
         try {
           // htmlLabels:false keeps labels as SVG <text> (no <foreignObject>), so the
@@ -507,6 +523,12 @@ function renderHtml(webview: vscode.Webview, mediaRoot: vscode.Uri, opts: Diagra
       if (VIEW_FORMAT === "html") {
         exportBtn.textContent = "⤓ CSV";
         exportBtn.title = "Export the table as CSV";
+        toggleDefsBtn.style.display = "none";
+        toggleInhBtn.style.display = "none";
+        document.getElementById("toggleSep").style.display = "none";
+      }
+      // SVG views share the PNG export path; no mermaid engine loaded.
+      if (VIEW_FORMAT === "svg") {
         toggleDefsBtn.style.display = "none";
         toggleInhBtn.style.display = "none";
         document.getElementById("toggleSep").style.display = "none";
